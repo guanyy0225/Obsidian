@@ -1,0 +1,253 @@
+{
+  "main": {
+    "id": "a185deab9847c709",
+    "type": "split",
+    "children": [
+      {
+        "id": "60572a8746cde5a4",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "baf58b24bfcecac8",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "杂.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "杂"
+            }
+          },
+          {
+            "id": "9a0bb796e7efd133",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "未命名 2.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "未命名 2"
+            }
+          },
+          {
+            "id": "24cd7a27296ef401",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/Drawing 2025-06-30 15.09.07.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "Drawing 2025-06-30 15.09.07.excalidraw"
+            }
+          },
+          {
+            "id": "e3a82292026a9357",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+            }
+          },
+          {
+            "id": "69b1a9b7bafe8f7f",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+            }
+          }
+        ],
+        "currentTab": 3
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "bbcb90d9de3b7d42",
+    "type": "split",
+    "children": [
+      {
+        "id": "33b8da299bcd971a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4b32c47e79d9b602",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "29ed3a28b7fbbd41",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "39e47eb3058a3597",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 222.5,
+    "collapsed": true
+  },
+  "right": {
+    "id": "1435d00f0d743758",
+    "type": "split",
+    "children": [
+      {
+        "id": "6b35721f98c8f299",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "5eddf94b391356a4",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "0619汇报.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "0619汇报 的反向链接列表"
+            }
+          },
+          {
+            "id": "f3db22bc85e57a30",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "3e040d683256b0ea",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "b2a02f64c8e757ef",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "obsidian-git:Open Git source control": false,
+      "obsidian-excalidraw-plugin:新建绘图文件": false
+    }
+  },
+  "active": "e3a82292026a9357",
+  "lastOpenFiles": [
+    "Excalidraw/Drawing 2025-06-30 15.09.07.excalidraw.md",
+    "未命名 2.md",
+    "Excalidraw",
+    "杂.md",
+    "未命名 1.md",
+    "未命名.md",
+    "github.md",
+    "多分类/2、null适配STAAR框架.md",
+    "代码报错结果记录.md",
+    "多分类/3、Indiv_Score_Test_Region以及单个基因的关联分析.md",
+    "多分类/1、REGENIE的.loco问题.md",
+    "多分类/5、写一个nullmodel_list.md",
+    "多分类/4、不平衡数据SPA的问题.md",
+    "组会/文献/Dynamic Scan Procedure for Detecting  Rare-Variant Association Regions in  Whole-Genome Sequencing Studies.md",
+    "组会/0619汇报.md",
+    "多分类",
+    "1.md",
+    "术语介绍/集合检验.md",
+    "STTAR.md",
+    "多分类表型可能的思路.md",
+    "多分类表型进展.md",
+    "0619-.md",
+    "组会/文献/Dynamic incorporation of multiple in silico functional annotations empowers rare variant association analysis of large whole-genome sequencing studies at scale.md",
+    "a.md",
+    "术语介绍/全基因组测序.md",
+    "组会",
+    "术语介绍/基因和非编码区.md",
+    "术语介绍/SNV和SNP.md",
+    "术语介绍/全基因组测序研究和全基因组关联研究的区别.md",
+    "术语介绍",
+    "组会/文献"
+  ]
+}
