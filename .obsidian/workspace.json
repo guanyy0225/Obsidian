@@ -67,8 +67,7 @@
               "title": "新标签页"
             }
           }
-        ],
-        "currentTab": 3
+        ]
       }
     ],
     "direction": "vertical"
@@ -125,8 +124,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 222.5,
-    "collapsed": true
+    "width": 222.5
   },
   "right": {
     "id": "1435d00f0d743758",
@@ -161,11 +159,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "杂.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links"
+              "title": "杂 的出链列表"
             }
           },
           {
@@ -180,7 +179,7 @@
                 "searchQuery": ""
               },
               "icon": "lucide-tags",
-              "title": "Tags"
+              "title": "标签"
             }
           },
           {
@@ -189,15 +188,27 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "杂.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "杂 的大纲"
+            }
+          },
+          {
+            "id": "c9842a50e333b955",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
             }
           }
-        ]
+        ],
+        "currentTab": 4
       }
     ],
     "direction": "horizontal",
@@ -213,10 +224,14 @@
       "templates:插入模板": false,
       "command-palette:打开命令面板": false,
       "obsidian-git:Open Git source control": false,
-      "obsidian-excalidraw-plugin:新建绘图文件": false
+      "obsidian-excalidraw-plugin:新建绘图文件": false,
+      "workspaces:管理工作区布局": false,
+      "random-note:开始漫游笔记": false,
+      "zk-prefixer:创建时间戳笔记": false,
+      "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "e3a82292026a9357",
+  "active": "baf58b24bfcecac8",
   "lastOpenFiles": [
     "Excalidraw/Drawing 2025-06-30 15.09.07.excalidraw.md",
     "未命名 2.md",
