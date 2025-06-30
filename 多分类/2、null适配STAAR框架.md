@@ -42,7 +42,7 @@ STAAR需要一个数值型的表型向量。最直接的方法是使用 `as.nume
 # 假设 data_for_null_model 是你用来拟合模型的数据框
 y_numeric <- as.numeric(data_for_null_model$alcohol_intake_frequency)
 ```
-
+---
 #### **第2步：计算残差 (Residuals)**
 
 这是最关键的一步。`clm` 模型没有像 `glm` 那样直接的 `fitted.values`。你需要计算一个**潜在变量（latent variable）的残差。在有序回归模型中，我们假设存在一个连续的、不可观测的潜在变量 `y`。模型的线性部分预测的就是这个 `y`。

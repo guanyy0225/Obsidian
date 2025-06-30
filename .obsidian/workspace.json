@@ -4,67 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "60572a8746cde5a4",
+        "id": "9d14b3d33de9fdbb",
         "type": "tabs",
         "children": [
           {
-            "id": "baf58b24bfcecac8",
+            "id": "8df5fcb4c75d57d9",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "杂.md",
+                "file": "github.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "杂"
-            }
-          },
-          {
-            "id": "9a0bb796e7efd133",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "未命名 2.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "未命名 2"
-            }
-          },
-          {
-            "id": "24cd7a27296ef401",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/Drawing 2025-06-30 15.09.07.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "Drawing 2025-06-30 15.09.07.excalidraw"
-            }
-          },
-          {
-            "id": "e3a82292026a9357",
-            "type": "leaf",
-            "state": {
-              "type": "empty",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "新标签页"
-            }
-          },
-          {
-            "id": "69b1a9b7bafe8f7f",
-            "type": "leaf",
-            "state": {
-              "type": "empty",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "github"
             }
           }
         ]
@@ -226,28 +180,28 @@
       "obsidian-git:Open Git source control": false,
       "obsidian-excalidraw-plugin:新建绘图文件": false,
       "workspaces:管理工作区布局": false,
-      "random-note:开始漫游笔记": false,
-      "zk-prefixer:创建时间戳笔记": false,
-      "markdown-importer:打开 Markdown 格式转换器": false
+      "markdown-importer:打开 Markdown 格式转换器": false,
+      "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "baf58b24bfcecac8",
+  "active": "8df5fcb4c75d57d9",
   "lastOpenFiles": [
-    "Excalidraw/Drawing 2025-06-30 15.09.07.excalidraw.md",
-    "未命名 2.md",
-    "Excalidraw",
     "杂.md",
     "未命名 1.md",
-    "未命名.md",
     "github.md",
-    "多分类/2、null适配STAAR框架.md",
+    "未命名.md",
     "代码报错结果记录.md",
-    "多分类/3、Indiv_Score_Test_Region以及单个基因的关联分析.md",
+    "Excalidraw/Drawing 2025-06-30 15.09.07.excalidraw.md",
+    "Excalidraw/Drawing 2025-06-30 15.35.16.excalidraw.md",
     "多分类/1、REGENIE的.loco问题.md",
-    "多分类/5、写一个nullmodel_list.md",
+    "多分类/2、null适配STAAR框架.md",
     "多分类/4、不平衡数据SPA的问题.md",
-    "组会/文献/Dynamic Scan Procedure for Detecting  Rare-Variant Association Regions in  Whole-Genome Sequencing Studies.md",
+    "多分类/3、Indiv_Score_Test_Region以及单个基因的关联分析.md",
+    "多分类/5、写一个nullmodel_list.md",
+    "未命名 2.md",
     "组会/0619汇报.md",
+    "Excalidraw",
+    "组会/文献/Dynamic Scan Procedure for Detecting  Rare-Variant Association Regions in  Whole-Genome Sequencing Studies.md",
     "多分类",
     "1.md",
     "术语介绍/集合检验.md",
@@ -261,7 +215,6 @@
     "组会",
     "术语介绍/基因和非编码区.md",
     "术语介绍/SNV和SNP.md",
-    "术语介绍/全基因组测序研究和全基因组关联研究的区别.md",
     "术语介绍",
     "组会/文献"
   ]
