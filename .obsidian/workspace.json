@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "多分类/三   Indiv_Score_Test_Region以及单个基因的关联分析.md",
+                "file": "杂.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "三   Indiv_Score_Test_Region以及单个基因的关联分析"
+              "title": "杂"
             }
           }
         ]
@@ -74,12 +74,12 @@
               "title": "Bookmarks"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 222.5
+    "width": 222.5,
+    "collapsed": true
   },
   "right": {
     "id": "1435d00f0d743758",
@@ -187,6 +187,7 @@
   },
   "active": "8df5fcb4c75d57d9",
   "lastOpenFiles": [
+    "多分类/三   Indiv_Score_Test_Region以及单个基因的关联分析.md",
     "多分类/二、null适配STAAR框架.md",
     "多分类/1、REGENIE的.loco问题.md",
     "github.md",
@@ -197,7 +198,6 @@
     "Excalidraw/Drawing 2025-06-30 15.09.07.excalidraw.md",
     "Excalidraw/Drawing 2025-06-30 15.35.16.excalidraw.md",
     "多分类/4、不平衡数据SPA的问题.md",
-    "多分类/三   Indiv_Score_Test_Region以及单个基因的关联分析.md",
     "多分类/5、写一个nullmodel_list.md",
     "未命名 2.md",
     "组会/0619汇报.md",
