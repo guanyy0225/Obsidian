@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -214,10 +214,10 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "598142f13deebb7a",
+  "active": "f4e2aeccf24dcdbb",
   "lastOpenFiles": [
-    "未命名 1.md",
     "未命名 3.md",
+    "未命名 1.md",
     "潜在变量残差法和范德瓦尔登分数法.md",
     "20250703.md",
     "多分类/1、REGENIE的.loco问题.md",
