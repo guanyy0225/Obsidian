@@ -149,7 +149,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 222.5
+    "width": 222.5,
+    "collapsed": true
   },
   "right": {
     "id": "1435d00f0d743758",
@@ -257,6 +258,7 @@
   },
   "active": "ed439d33826a4435",
   "lastOpenFiles": [
+    "Pasted image 20250722095845.png",
     "未命名 4.md",
     "0722证明潜在变量的可用性.md",
     "未命名 1.md",
@@ -284,7 +286,6 @@
     "STTAR.md",
     "多分类表型可能的思路.md",
     "多分类表型进展.md",
-    "0619-.md",
     "组会",
     "术语介绍",
     "组会/文献"
