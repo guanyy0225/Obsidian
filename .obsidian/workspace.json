@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "0725说明其他方法中也用到了潜在变量.md",
+                "file": "问题汇总.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0725说明其他方法中也用到了潜在变量"
+              "title": "问题汇总"
             }
           },
           {
@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -213,16 +213,16 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "529b6cff5dbef75e",
+  "active": "2a04748241bb52fd",
   "lastOpenFiles": [
     "未命名 4.md",
-    "GENESIS.md",
     "问题汇总.md",
+    "0725说明其他方法中也用到了潜在变量.md",
+    "GENESIS.md",
     "未命名.md",
     "潜在变量残差法.md",
     "0730使用潜变量的条件期望和条件方差来为序数模型构建关联检验的方法的原理及依据.md",
     "0722证明潜在变量的可用性.md",
-    "0725说明其他方法中也用到了潜在变量.md",
     "潜在变量残差法和范德瓦尔登分数法.md",
     "github.md",
     "Pasted image 20250722095845.png",
