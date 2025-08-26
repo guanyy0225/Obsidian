@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "未命名 4.md",
+                "file": "未命名 1.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "未命名 4"
+              "title": "未命名 1"
             }
           }
         ],
@@ -215,10 +215,12 @@
   },
   "active": "529b6cff5dbef75e",
   "lastOpenFiles": [
+    "未命名 4.md",
+    "未命名 1.md",
+    "未命名.md",
     "潜在变量残差法.md",
     "0730使用潜变量的条件期望和条件方差来为序数模型构建关联检验的方法的原理及依据.md",
     "未命名 2.md",
-    "未命名 1.md",
     "0722证明潜在变量的可用性.md",
     "0725说明其他方法中也用到了潜在变量.md",
     "潜在变量残差法和范德瓦尔登分数法.md",
@@ -226,8 +228,6 @@
     "Pasted image 20250722095845.png",
     "杂.md",
     "20250703.md",
-    "未命名.md",
-    "未命名 4.md",
     "多分类/1、REGENIE的.loco问题.md",
     "多分类/4、不平衡数据SPA的问题.md",
     "多分类/5、写一个nullmodel_list.md",
