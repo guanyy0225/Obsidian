@@ -4,19 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "9d14b3d33de9fdbb",
+        "id": "064c24d0abe2057e",
         "type": "tabs",
         "children": [
           {
-            "id": "760ddf71b7103e22",
+            "id": "cc7151d0959a2e5a",
             "type": "leaf",
             "state": {
-              "type": "excalidraw",
+              "type": "markdown",
               "state": {
-                "file": "Excalidraw/高数.md"
+                "file": "未命名 1.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "excalidraw-icon",
-              "title": "高数"
+              "icon": "lucide-file",
+              "title": "未命名 1"
             }
           }
         ]
@@ -76,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 222.5,
-    "collapsed": true
+    "width": 222.5
   },
   "right": {
     "id": "1435d00f0d743758",
@@ -184,13 +185,13 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "760ddf71b7103e22",
+  "active": "cc7151d0959a2e5a",
   "lastOpenFiles": [
     "高数/未命名.md",
+    "未命名 1.md",
     "Excalidraw/高数.md",
     "组会/github.md",
     "组会/0725说明其他方法中也用到了潜在变量.md",
-    "未命名.md",
     "组会/0826GENESIS.md",
     "组会/潜在变量残差法.md",
     "组会/0722证明潜在变量的可用性.md",
