@@ -1,4 +1,4 @@
-fit_nullmodel是如何拟合分类模型的
+## fit_nullmodel是如何拟合分类模型的？
 
 
 基于这个需求，我们对之前提出的 `fitNullModel_extended` 函数进行修改。修改的核心是：**在处理有序表型时，允许`cov.mat`（亲缘关系矩阵）参数为`NULL`。当`cov.mat`为`NULL`时，跳过拟合LMM的第二阶段，直接将第一阶段（固定效应有序模型）的结果转换为`GENESIS`兼容的格式。**
