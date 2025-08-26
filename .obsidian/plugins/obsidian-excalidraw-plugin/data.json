@@ -125,31 +125,31 @@
   "pinnedScripts": [],
   "customPens": [
     {
-      "type": "default",
+      "type": "highlighter",
       "freedrawOnly": false,
-      "strokeColor": "#000000",
-      "backgroundColor": "transparent",
-      "fillStyle": "hachure",
-      "strokeWidth": 0,
-      "roughness": 0,
+      "strokeColor": "#FFC47C",
+      "backgroundColor": "#FFC47C",
+      "fillStyle": "solid",
+      "strokeWidth": 0.5,
+      "roughness": null,
       "penOptions": {
-        "highlighter": false,
-        "constantPressure": false,
-        "hasOutline": false,
-        "outlineWidth": 1,
+        "highlighter": true,
+        "constantPressure": true,
+        "hasOutline": true,
+        "outlineWidth": 4,
         "options": {
-          "thinning": 0.6,
+          "thinning": 1,
           "smoothing": 0.5,
           "streamline": 0.5,
-          "easing": "easeOutSine",
+          "easing": "linear",
           "start": {
+            "taper": 36,
             "cap": true,
-            "taper": 0,
             "easing": "linear"
           },
           "end": {
-            "cap": true,
             "taper": 0,
+            "cap": true,
             "easing": "linear"
           }
         }
@@ -220,16 +220,16 @@
     {
       "type": "fountain",
       "freedrawOnly": false,
-      "strokeColor": "#000000",
-      "backgroundColor": "transparent",
+      "strokeColor": "#bb3030",
+      "backgroundColor": "#000000",
       "fillStyle": "hachure",
-      "strokeWidth": 2,
+      "strokeWidth": 0.5,
       "roughness": 0,
       "penOptions": {
         "highlighter": false,
         "constantPressure": false,
         "hasOutline": false,
-        "outlineWidth": 1,
+        "outlineWidth": 0,
         "options": {
           "smoothing": 0.2,
           "thinning": 0.6,
@@ -435,7 +435,7 @@
       }
     }
   ],
-  "numberOfCustomPens": 0,
+  "numberOfCustomPens": 10,
   "pdfScale": 4,
   "pdfBorderBox": true,
   "pdfFrame": false,
