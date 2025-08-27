@@ -251,7 +251,7 @@ $$
 **1. 极限 $\lim_{x \to 0} \frac{e^x - e^{\sin x}}{x - \sin x}$ = __1__**
 
 > [!NOTE]
-> *   **思路:** 这是一个 "0/0" 型的极限，可以使用洛必达法则或等价无穷小（或泰勒展开）。使用一个巧妙的代换会更简单。
+> *   **思路:** 这是一个 "0/0" 型的极限，可以使用洛必达法则、等价无穷小或泰勒展开）。使用一个巧妙的代换会更简单。
 
 **方法1 (观察):**
 令 $f(t) = e^t$。极限可以看作 $\lim_{x \to 0} \frac{f(x) - f(\sin x)}{x - \sin x}$。
@@ -889,15 +889,189 @@ $f'(x_0) = 0$
         *   分子 $\ln\left(\frac{e^x - 1}{x}\right) \to \ln(1) \to 0$ (使用了重要极限 $\lim_{x \to 0} \frac{e^x - 1}{x} = 1$)
         *   分母 $x \to 0$
 
-    **方法一：使用泰勒展开**
-    *   当 $x \to 0$ 时，$e^x \approx 1 + x + \frac{x^2}{2}$。
-    *   所以 $\frac{e^x - 1}{x} \approx \frac{x + x^2/2}{x} = 1 + \frac{x}{2}$。
-    *   代入 $u$ 的表达式中：$u \ \frac{\ln\left(1 + \frac{x}{2}\right)}{x}$
-    *   当 $y \to 0$ 时，$\ln(1+y) \approx y$。令 $y = x/2$：
-        $u \approx \frac{1}{x} \cdot \frac{x}{2} = \frac{1}{2}$
-    *   因此，$\lim_{x \to 0^+} u = \frac{1}{2}$。
 
-**最终答案:** $\lim_{x \to 0^+} u = \frac{1}{2}$
+#### **方法一：洛必达法则
+
+1.  **求分母的导数:**
+    $$
+    \frac{d}{dx}(x) = 1
+    $$
+
+2.  **求分子的导数 (这是关键步骤):**
+    我们需要对 $f(x) = \ln\left(\frac{e^x - 1}{x}\right)$ 求导。
+
+    为了计算方便，我们可以先利用对数性质将函数拆分：
+    $$
+    f(x) = \ln(e^x - 1) - \ln(x)
+    $$
+    现在分别对这两项求导：
+    *   $\frac{d}{dx}[\ln(e^x - 1)] = \frac{1}{e^x - 1} \cdot \frac{d}{dx}(e^x - 1) = \frac{e^x}{e^x - 1}$
+    *   $\frac{d}{dx}[\ln(x)] = \frac{1}{x}$
+
+    所以，分子的导数是：
+    $$
+    f'(x) = \frac{e^x}{e^x - 1} - \frac{1}{x}
+    $$
+
+3.  **应用法则并计算新极限:**
+    根据洛必达法则，原极限 $L$ 等于：
+    $$
+    L = \lim_{x \to 0^+} \frac{\frac{e^x}{e^x - 1} - \frac{1}{x}}{1} = \lim_{x \to 0^+} \left(\frac{e^x}{e^x - 1} - \frac{1}{x}\right)
+    $$
+
+**第二次洛必达
+4.  **通分:**
+    $$
+    L = \lim_{x \to 0^+} \frac{x e^x - (e^x - 1)}{x(e^x - 1)} = \lim_{x \to 0^+} \frac{x e^x - e^x + 1}{x e^x - x}
+    $$
+
+*   **新分子的导数:**
+	$\frac{d}{dx}(x e^x - e^x + 1) = (1 \cdot e^x + x \cdot e^x) - e^x + 0 = e^x + xe^x - e^x = xe^x$
+*   **新分母的导数:**
+	$\frac{d}{dx}(x e^x - x) = (1 \cdot e^x + x \cdot e^x) - 1 = e^x + xe^x - 1$
+
+5.  **计算最终的极限:**
+    $$
+    L = \lim_{x \to 0^+} \frac{xe^x}{e^x + xe^x - 1}
+    $$
+
+**第三次洛必达**
+
+6.  **第三次对分子和分母求导:**
+*   **分子的导数:**
+	$\frac{d}{dx}(xe^x) = 1 \cdot e^x + x \cdot e^x = e^x + xe^x$
+*   **分母的导数:**
+	$\frac{d}{dx}(e^x + xe^x - 1) = e^x + (e^x + xe^x) - 0 = 2e^x + xe^x$
+
+7.  **计算极限:**
+    $$
+    L = \lim_{x \to 0^+} \frac{e^x + xe^x}{2e^x + xe^x}
+    $$
+    现在，这个极限可以直接通过代入 $x=0$ 来计算了，因为它不再是不定型。
+    $$
+    L = \frac{e^0 + 0 \cdot e^0}{2e^0 + 0 \cdot e^0} = \frac{1 + 0}{2 + 0} = \frac{1}{2}
+    $$
+
+
+#### **方法二：泰勒展开**
+*   当 $x \to 0$ 时，$e^x \approx 1 + x + \frac{x^2}{2}$。
+*   所以 $\frac{e^x - 1}{x} \approx \frac{x + x^2/2}{x} = 1 + \frac{x}{2}$。
+*   代入 $u$ 的表达式中：$u = \frac{\ln\left(1 + \frac{x}{2}\right)}{x}$
+*   当 $y \to 0$ 时，$\ln(1+y) \approx y$。令 $y = x/2$：
+	$u \approx \frac{1}{x} \cdot \frac{x}{2} = \frac{1}{2}$
+*   因此，$\lim_{x \to 0^+} u = \frac{1}{2}$。
+
+
+
+#### **方法三：导数定义
+
+**核心思想：** 将极限表达式凑成 $f'(a) = \lim_{x \to a} \frac{f(x) - f(a)}{x - a}$ 的形式。
+
+1.  **定义一个函数**
+    让我们定义一个函数 $g(x)$ 如下：
+    $$
+    g(x) = \ln\left(\frac{e^x - 1}{x}\right)
+    $$
+    这个函数在 $x=0$ 处没有定义。但是，我们可以计算它在 $x \to 0$ 时的极限：
+    $$
+    \lim_{x \to 0} g(x) = \lim_{x \to 0} \ln\left(\frac{e^x - 1}{x}\right) = \ln\left(\lim_{x \to 0} \frac{e^x - 1}{x}\right) = \ln(1) = 0
+    $$
+    所以，我们可以定义一个在 $x=0$ 处连续的新函数 $f(x)$：
+    $$
+    f(x) =
+    \begin{cases}
+    \ln\left(\frac{e^x - 1}{x}\right) & \text{if } x \neq 0 \\
+    0 & \text{if } x = 0
+    \end{cases}
+    $$
+
+2.  **将原极限改写为导数形式**
+    现在，我们要求的极限可以被重写为：
+    $$
+    L = \lim_{x \to 0^+} \frac{f(x)}{x} = \lim_{x \to 0^+} \frac{f(x) - 0}{x - 0} = \lim_{x \to 0^+} \frac{f(x) - f(0)}{x - 0}
+    $$
+    这正是函数 $f(x)$ 在 $x=0$ 处的**右导数**的定义，即 $f'_+(0)$。
+
+3.  **计算导数**
+    根据求导法则，如果 $f'(x)$ 在 $x=0$ 处连续，那么 $f'(0) = \lim_{x \to 0} f'(x)$。我们来计算 $f'(x)$ (当 $x \neq 0$ 时)：
+    $$
+    f'(x) = \frac{e^x}{e^x - 1} - \frac{1}{x}
+    $$
+    通分得到：
+    $$
+    f'(x) = \frac{x e^x - (e^x - 1)}{x(e^x - 1)} = \frac{x e^x - e^x + 1}{x e^x - x}
+    $$
+
+4.  **求解导数的极限**
+    *   **使用洛必达法则 (对 $f'(x)$):**
+        $$
+        \lim_{x \to 0} \frac{x e^x - e^x + 1}{x e^x - x} \overset{L'H}{=} \lim_{x \to 0} \frac{(e^x + xe^x) - e^x}{(e^x + xe^x) - 1} = \lim_{x \to 0} \frac{xe^x}{e^x + xe^x - 1}
+        $$
+        这还是 "0/0" 型，再用一次：
+        $$
+        \overset{L'H}{=} \lim_{x \to 0} \frac{e^x + xe^x}{e^x + (e^x + xe^x)} = \frac{e^0 + 0}{e^0 + e^0 + 0} = \frac{1}{2}
+        $$
+    
+    所以，我们得到 $f'(0) = 1/2$。
+
+**结论：** 原极限等于 $f'(0)$，也就是 **1/2**。
+
+
+
+#### **方法四：利用夹逼定理
+
+这种方法非常严谨，但需要构造合适的不等式，技巧性较强。
+
+**核心思想：** 找到两个函数 $g(x)$ 和 $h(x)$，使得 $g(x) \le f(x) \le h(x)$，并且 $\lim_{x \to 0} g(x) = \lim_{x \to 0} h(x) = L$。
+
+1.  **构造不等式**
+    我们需要一个关于 $\ln(1+u)$ 的不等式。对于 $u > 0$，有一个著名且有用的不等式：
+    $$
+    \frac{u}{1+u} \le \ln(1+u) \le u
+    $$
+
+2.  **变量代换**
+    我们的表达式是 $\frac{1}{x} \ln\left(\frac{e^x - 1}{x}\right)$。
+    我们令 $u = \frac{e^x - 1}{x} - 1$。
+    当 $x \to 0^+$ 时，$u = (\frac{1+x+x^2/2+... - 1}{x}) - 1 = (1+x/2+...) - 1 = x/2+... > 0$。
+    所以我们可以使用上面的不等式。
+    原表达式中的 $\ln\left(\frac{e^x-1}{x}\right)$ 可以写成 $\ln(1+u)$。
+
+3.  **应用不等式**
+    将 $\ln(1+u)$ 替换为它的上下界，并同除以 $x$ ($x > 0$，不等号方向不变)：
+    $$
+    \frac{1}{x} \left( \frac{u}{1+u} \right) \le \frac{\ln(1+u)}{x} \le \frac{u}{x}
+    $$
+    代回 $u$ 的表达式，我们得到一个下界和一个上界。
+
+4.  **计算上界的极限**
+    $$
+    \lim_{x \to 0^+} \frac{u}{x} = \lim_{x \to 0^+} \frac{\frac{e^x - 1}{x} - 1}{x} = \lim_{x \to 0^+} \frac{e^x - 1 - x}{x^2}
+    $$
+    这是一个 "0/0" 型，用两次洛必达法则：
+    $$
+    \overset{L'H}{=} \lim_{x \to 0^+} \frac{e^x - 1}{2x} \overset{L'H}{=} \lim_{x \to 0^+} \frac{e^x}{2} = \frac{1}{2}
+    $$
+    所以，我们找到了上界的极限是 **1/2**。
+
+5.  **计算下界的极限**
+    $$
+    \lim_{x \to 0^+} \frac{1}{x} \left( \frac{u}{1+u} \right) = \left( \lim_{x \to 0^+} \frac{u}{x} \right) \cdot \left( \lim_{x \to 0^+} \frac{1}{1+u} \right)
+    $$
+    我们已经知道 $\lim_{x \to 0^+} \frac{u}{x} = \frac{1}{2}$。
+    并且当 $x \to 0^+$ 时，$u \to 0$，所以 $\lim_{x \to 0^+} \frac{1}{1+u} = \frac{1}{1+0} = 1$。
+    因此，下界的极限是 $\frac{1}{2} \cdot 1 = \frac{1}{2}$。
+
+6.  **得出结论**
+    因为下界和上界的极限都等于 **1/2**，根据夹逼定理，原极限也必须等于 **1/2**。
+
+
+| 方法        | 核心思想                                          | 优点        | 缺点                    |
+| :-------- | :-------------------------------------------- | :-------- | :-------------------- |
+| **洛必达法则** | 处理不定型 $\frac{0}{0}$ 或 $\frac{\infty}{\infty}$ | 机械化，直接    | 可能需要多次求导，计算繁琐         |
+| **泰勒展开**  | 用多项式逼近函数                                      | 功能强大，揭示本质 | 需要记住常用展开式，代数运算易错      |
+| **导数定义**  | 将极限看作某函数的导数                                   | 思路巧妙，形式优雅 | 需要构造合适的函数，可能最终还是要用洛必达 |
+| **夹逼定理**  | 用两个极限相同的函数夹住目标                                | 逻辑严谨，非常根本 | 技巧性强，找到合适的不等式是难点      |
 
 ---
 
@@ -916,7 +1090,7 @@ $f'(x_0) = 0$
 **2. 设 $f(x)$ 的一个原函数为 $\ln(x + \sqrt{1+x^2})$，求 $\int xf'(x)dx$.**
 
 **解题思路:**
-首先根据原函数的定义求出 $f(x)$，然后使用分部积分法计算所求的不定积分。
+首先根据原函数的定义求出 $f(x)$，然后使用==分部积分法==计算所求的不定积分。
 
 **详细步骤:**
 
@@ -940,11 +1114,73 @@ $f'(x_0) = 0$
     *   将这些代入公式：
         $\int xf'(x)dx = x \cdot \frac{1}{\sqrt{1+x^2}} - \ln(x + \sqrt{1+x^2}) + C$
 
+
+
+**尝试使用第一类换元法
+
+1.  **选择换元变量 `u`:**
+    一个自然的选择是令 $u = f(x)$。
+    那么 $du = f'(x)dx$。
+
+
+2.  **进行换元:**
+    $$
+    \int x \underbrace{f'(x)dx}_{du}
+    $$
+    我们用 $du$ 替换了 $f'(x)dx$，但积分式里还剩下一个 $x$。我们必须把 $x$ 也用 $u$ 来表示。
+
+3.  **反解出 `x`:**
+    $$
+    \sqrt{1+x^2} = \frac{1}{u}
+    $$
+    $$
+    1 + x^2 = \frac{1}{u^2}
+    $$
+    $$
+    x^2 = \frac{1}{u^2} - 1 = \frac{1-u^2}{u^2}
+    $$
+    $$
+    x = \frac{\sqrt{1-u^2}}{u} \quad (\text{假设 x > 0})
+    $$
+
+4.  **得到新的积分:**
+    将 $x = \frac{\sqrt{1-u^2}}{u}$ 代入换元后的积分式，我们得到一个全新的、只关于 $u$ 的积分：
+    $$
+    \int \frac{\sqrt{1-u^2}}{u} du
+    $$
+
+5.  **解决这个新积分:**
+    这个新积分比原来的问题复杂多了！它需要用**第二次换元**，也就是**三角换元法**来解决。
+    *   令 $u = \sin\theta$，则 $du = \cos\theta \, d\theta$。
+    *   积分变为 $\int \frac{\sqrt{1-\sin^2\theta}}{\sin\theta} \cos\theta \, d\theta = \int \frac{\cos\theta}{\sin\theta} \cos\theta \, d\theta = \int \frac{\cos^2\theta}{\sin\theta} d\theta$
+    *   $= \int \frac{1-\sin^2\theta}{\sin\theta} d\theta = \int (\csc\theta - \sin\theta) d\theta$
+    *   $= \ln|\csc\theta - \cot\theta| + \cos\theta + C$
+
+6.  **换元回来:**
+    这还没完，我们得把 $\theta$ 换回 $u$，再把 $u$ 换回 $x$。
+    *   从 $u = \sin\theta$ 得到 $\cos\theta = \sqrt{1-u^2}$，$\csc\theta=1/u$，$\cot\theta = \sqrt{1-u^2}/u$。
+    *   代入得到：$\ln\left|\frac{1-\sqrt{1-u^2}}{u}\right| + \sqrt{1-u^2} + C$
+    *   再代入 $u = \frac{1}{\sqrt{1+x^2}}$ ... 最终也能得到正确答案，但过程极其复杂。
+
+对于 $\int x f'(x) dx$ 这种形式的积分，**分部积分法**几乎永远是首选的、最高效的方法。
+
 **最终答案:** $\frac{x}{\sqrt{1+x^2}} - \ln(x + \sqrt{1+x^2}) + C$
 
 ---
 
-**3. 计算由函数 $f(x) = x\cos^8 x$，直线 $x = 2\pi$ 以及两个坐标轴在第一象限所围图形面积。**
+
+
+
+
+
+
+
+
+
+
+
+
+~~**3. 计算由函数 $f(x) = x\cos^8 x$，直线 $x = 2\pi$ 以及两个坐标轴在第一象限所围图形面积。**~~
 
 **解题思路:**
 面积就是定积分 $A = \int_{0}^{2\pi} x\cos^8 x \, dx$。这个积分直接计算很困难，可以使用定积分的对称性性质来简化。
@@ -955,7 +1191,6 @@ $f'(x_0) = 0$
     $A = \int_{0}^{2\pi} x\cos^8 x \, dx$
 
 2.  **使用积分性质:**
-    利用性质 $\int_{0}^{a} g(x)dx = \int_{0}^{a} g(a-x)dx$。这里 $a = 2\pi$。
     $A = \int_{0}^{2\pi} (2\pi - x)\cos^8(2\pi - x) \, dx$
     因为 $\cos(2\pi - x) = \cos(x)$，所以 $\cos^8(2\pi - x) = \cos^8 x$。
     $A = \int_{0}^{2\pi} (2\pi - x)\cos^8 x \, dx = \int_{0}^{2\pi} 2\pi\cos^8 x \, dx - \int_{0}^{2\pi} x\cos^8 x \, dx$
@@ -964,7 +1199,7 @@ $f'(x_0) = 0$
 
 3.  **计算简化后的积分:**
     *   函数 $\cos^8 x$ 的周期是 $\pi$，所以 $\int_{0}^{2\pi} \cos^8 x \, dx = 2 \int_{0}^{\pi} \cos^8 x \, dx$。
-    *   又因为 $\cos^8(\pi - x) = (-\cos x)^8 = \cos^8 x$，根据对称性 $\int_{0}^{\pi} h(x)dx = 2 \int_{0}^{\pi/2} h(x)dx$。
+    *   又因为 $\cos^8(\pi - x) = (-\cos x)^8 = \cos^8 x$，
     *   所以 $\int_{0}^{\pi} \cos^8 x \, dx = 2 \int_{0}^{\pi/2} \cos^8 x \, dx$。
     *   综上，$A = \pi \cdot (2 \cdot 2 \int_{0}^{\pi/2} \cos^8 x \, dx) = 4\pi \int_{0}^{\pi/2} \cos^8 x \, dx$。
 
@@ -980,10 +1215,27 @@ $f'(x_0) = 0$
 
 ---
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 **4. 已知 $\int_{0}^{+\infty} \frac{\sin x}{x} dx = \frac{\pi}{2}$，求 $\int_{0}^{+\infty} \frac{\sin^2 x}{x^2} dx$.**
 
-**解题思路:**
-所求积分的形式很适合使用分部积分法，通过分部积分，可以将其转化为已知的狄利克雷积分 $\int_{0}^{+\infty} \frac{\sin x}{x} dx$。
+> [!NOTE]
+> **解题思路:**
+> 所求积分的形式很适合使用分部积分法，通过分部积分，可以将其转化为已知的狄利克雷积分 $\int_{0}^{+\infty} \frac{\sin x}{x} dx$。
+> 
 
 **详细步骤:**
 
@@ -991,7 +1243,7 @@ $f'(x_0) = 0$
     $I = \int_{0}^{+\infty} \frac{\sin^2 x}{x^2} dx$
 
 2.  **使用分部积分法:**
-    令 $u = \sin^2 x$，`dv = \frac{1}{x^2} dx$。
+    令 $u = \sin^2 x$，$dv = \frac{1}{x^2} dx$。
     *   $du = 2\sin x \cos x \, dx = \sin(2x) \, dx$
     *   $v = \int \frac{1}{x^2} dx = -\frac{1}{x}$
     *   $I = \left[\sin^2 x \cdot \left(-\frac{1}{x}\right)\right]_{0}^{+\infty} - \int_{0}^{+\infty} \left(-\frac{1}{x}\right) \sin(2x) \, dx$
@@ -1014,6 +1266,24 @@ $f'(x_0) = 0$
 **最终答案:** $\frac{\pi}{2}$
 
 ---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 **5. 求微分方程 $y'' - 3y' - 10y = 0$ 满足初始条件 $y(0) = 2$ 和 $y'(0) = 10$ 的特解。**
 
