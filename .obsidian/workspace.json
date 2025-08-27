@@ -27,7 +27,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "04_项目/高数/高数A卷.md",
+                "file": "05_学习/家教/高数/高数A卷.md",
                 "mode": "source",
                 "source": false
               },
@@ -53,12 +53,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "04_项目/组会/0827.md",
+                "file": "05_学习/家教/高数/高数A卷.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0827"
+              "title": "高数A卷"
             }
           }
         ],
@@ -119,7 +119,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 222.5
+    "width": 222.5,
+    "collapsed": true
   },
   "right": {
     "id": "1435d00f0d743758",
@@ -226,10 +227,11 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "4b32c47e79d9b602",
+  "active": "ab4a580db46725af",
   "lastOpenFiles": [
+    "04_项目/组会/0827.md",
+    "05_学习/家教",
     "04_项目/组会/0730使用潜变量的条件期望和条件方差来为序数模型构建关联检验的方法的原理及依据.md",
-    "未命名",
     "04_项目/未命名.md",
     "05_学习",
     "06_生活",
@@ -240,8 +242,7 @@
     "00_工具",
     "07_草稿箱",
     "04_项目/Excalidraw/Drawing 2025-08-27 10.47.11.excalidraw.md",
-    "04_项目/高数/高数A卷.md",
-    "04_项目/组会/0827.md",
+    "05_学习/家教/高数/高数A卷.md",
     "04_项目/组会/0826问题汇总.md",
     "04_项目/组会/0826GENESIS.md",
     "04_项目/组会/0722证明潜在变量的可用性.md",
