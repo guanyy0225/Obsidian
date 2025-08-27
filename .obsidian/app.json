@@ -10,5 +10,8 @@
     "landscape": false,
     "margin": "0",
     "downscalePercent": 100
-  }
+  },
+  "newFileLocation": "folder",
+  "newFileFolderPath": "草稿箱",
+  "attachmentFolderPath": "./附件"
 }
