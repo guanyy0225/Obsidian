@@ -1,4 +1,3 @@
-# STAAR扩展“有序多分类”型数据
 
 ---
 ### 一、预处理：REGENENIE控制sample relatedness
@@ -60,11 +59,14 @@
     *   模型的预测部分是 `η = Xβ`。
     *   根据 `Y=k`，我们知道他的潜在变量 `Y*` 落在 `(α_{k-1}, α_k]` 这个区间内。
     *   因为 `ε = Y* - η`，所以我们同样知道了他的**真实残差 `ε` 必须落在 `(α_{k-1} - η, α_k - η]` 这个区间内**。
-3.  **计算条件期望**：现在的问题变成了：已知一个随机变量 `ε`（服从正态分布）落在一个已知的区间 `[a, b]` 内，它的期望值是多少？
-    *   这个条件期望有一个解析解：`E[ε | a < ε ≤ b] = (pdf(a) - pdf(b)) / (cdf(b) - cdf(a))`
-        *   `pdf` 是概率密度函数
-        *   `cdf` 是累积分布函数
+3.  **计算条件期望 (即“残差”)**: 使用截断分布的公式来计算 $E[\epsilon_i | a_i < \epsilon_i \le b_i]$。
+    *   对于 **probit** 链接 (正态分布)，公式为：
+        $Residual_i = \frac{\phi(a_i) - \phi(b_i)}{\Phi(b_i) - \Phi(a_i)}$
+    其中 $\phi$ 是标准正态分布的PDF，$\Phi$ 是CDF。
 4.  **残差的条件期望是`ε`的最佳统计估计**：在统计理论中，条件期望具有一个非常重要的性质：它是**最小均方误差 (Minimum Mean Square Error, MMSE)** 估计量。
+5.  **计算条件方差 (用于“权重”)**: 同样使用截断分布的公式计算 $Var(\epsilon_i | a_i < \epsilon_i \le b_i]$。
+    *   对于 **probit** 链接，公式为：
+        $Variance_i = 1 + \frac{a_i\phi(a_i) - b_i\phi(b_i)}{\Phi(b_i) - \Phi(a_i)} - (Residual_i)^2$
 
 #### 代码实现
 
@@ -96,24 +98,23 @@ clm_obj <- ordinal::clm(formula = formula, data = data, link = "probit", ...)
 
 我们无法直接观测到残差，但我们可以计算出它的“条件期望值”，也就是在已知它落在一个特定区间的前提下，对它的最佳猜测。
 
-*   **做什么：**
-    ```R
-    # 1. 将潜在变量的区间，转换成残差的区间
-    lower_bounds_eps <- lower_bounds_eta - eta
-    upper_bounds_eps <- upper_bounds_eta - eta
-    
-    # 2. 利用正态分布的数学性质，计算条件期望
-    phi_a <- dnorm(lower_bounds_eps) # 正态分布密度函数 PDF
-    phi_b <- dnorm(upper_bounds_eps)
-    Phi_a <- pnorm(lower_bounds_eps) # 正态分布累积函数 CDF
-    Phi_b <- pnorm(upper_bounds_eps)
-    
-    prob_in_interval <- Phi_b - Phi_a # 残差落在这个区间的概率
-    
-    # 这就是截尾正态分布的期望公式
-    residuals <- (phi_a - phi_b) / prob_in_interval 
-    y_numeric <- residuals
-    ```
+```R
+# 1. 将潜在变量的区间，转换成残差的区间
+lower_bounds_eps <- lower_bounds_eta - eta
+upper_bounds_eps <- upper_bounds_eta - eta
+
+# 2. 利用正态分布的数学性质，计算条件期望
+phi_a <- dnorm(lower_bounds_eps) # 正态分布密度函数 PDF
+phi_b <- dnorm(upper_bounds_eps)
+Phi_a <- pnorm(lower_bounds_eps) # 正态分布累积函数 CDF
+Phi_b <- pnorm(upper_bounds_eps)
+
+prob_in_interval <- Phi_b - Phi_a # 残差落在这个区间的概率
+
+# 这就是截尾正态分布的期望公式
+residuals <- (phi_a - phi_b) / prob_in_interval 
+y_numeric <- residuals
+```
 
 *   `residuals`的计算公式，是截尾正态分布的期望值。它的直观意义是：“**已知一个服从标准正态分布的随机变量（残差）落在了区间 `[a, b]` 内，那么它的期望值是多少？**”
 *   这个计算出的`residuals`就是我们想要的，它是一个连续值，代表了除去所有已知协变量影响后，每个样本剩余的、需要用基因来解释的表型信息。
@@ -131,3 +132,32 @@ weights <- 1 / var_y
 
 ---
 
+### 四、实际遇到的问题
+
+#### 样本方差为0
+
+```R
+--- Ordinal phenotype detected. Using custom ordinal null model workflow. ---
+Part 1: Fitting cumulative link model with ordinal::clm...
+Part 1: Ordinal model fitting successful.
+Part 2: Converting 'clm' object to a GMMAT/STAAR-compatible null model...
+Part 2.1: Calculating conditional expectation of latent residuals...
+Part 3: Assembling the final 'glmmkin' object...
+--- Ordinal null model fitting complete. ---
+警告信息:
+1: Numerical instability detected in weight calculation.
+  - 137565 out of 484058 samples (28.4191%) had near-zero variance for latent residuals.
+  - This can happen with extreme covariate values (e.g., PRS) leading to perfect prediction.
+  - Their weights have been regularized. If the percentage is high, consider checking for covariate separation. 
+2: In fit_null_model(formula = null_model_formula, data = data_for_null_model,  :
+  Non-finite values detected in weights. Replacing with 1.
+```
+
+**解决：
+
+```R
+var_y[var_y < 1e-8] <- 1e-8
+```
+
+**关联分析结果
+"D:\desktop\multiclass\STAARpipelinePheWAS\ADH1C.xlsx"
