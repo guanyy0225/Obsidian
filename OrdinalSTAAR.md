@@ -1,6 +1,186 @@
 
 ---
-##
+## `REGENIE`预处理
+
+```R
+# --- 文件名: 01_generate_latent_phenotype.R ---
+
+##########################################################
+# Ordinal Phenotype Transformation for REGENIE
+# Part A: Generate Latent Variable Phenotype
+# Author: Zilin Li, with contributions from AI assistant
+# Date: 19/06/2025
+##########################################################
+
+# --- 0. Load Libraries ---
+library(data.table)
+library(ordinal)
+library(dplyr)
+
+# --- 1. Load and Prepare Initial Data ---
+message("Step 1: Loading and preparing initial data...")
+
+load("/datapool/maths/UKBB/Data/Phenotype/main_survey/bd_676623.Rdata")
+
+pcs <- fread("/datapool/maths/UKBB/Data/PC_GRM/sGRM_and_PCs/output.pca.score")
+colnames(pcs)[1:2] <- c("userId", "userID2")
+colnames(pcs)[3:22] <- paste0("PC", 1:20)
+
+pheno <- bd[, c(c(0, 769) + 1)]
+colnames(pheno) <- c("userId", "alcohol_intake_frequency")
+
+covariate <- bd[, c(c(0, 22, 10318) + 1)]
+colnames(covariate)[1:3] <- c("userId", "sex", "age")
+
+t1 <- merge(pheno, covariate, by = "userId")
+fullDat <- merge(t1, pcs, by = "userId")
+
+# --- 2. Filter Samples ---
+message("Step 2: Filtering samples...")
+gId <- get(load("/datapool/maths/UKBB/Data/Phenotype/sample_id/UKB_500K_WGS_sampleid.RData"))
+data_for_model <- fullDat[
+  (fullDat$userId %in% gId) &
+    !is.na(fullDat$alcohol_intake_frequency) &
+    !is.na(fullDat$PC1) & !is.na(fullDat$age) & !is.na(fullDat$sex) &
+    fullDat$alcohol_intake_frequency != "Prefer not to answer",
+]
+
+# --- 3. Transform Covariates and Outcome ---
+message("Step 3: Transforming variables...")
+data_for_model$age2 <- (data_for_model$age)^2
+data_for_model$alcohol_intake_frequency <- ordered(
+  factor(
+    data_for_model$alcohol_intake_frequency,
+    levels = c("Never", "Special occasions only", 
+               "One to three times a month", "Once or twice a week", 
+               "Three or four times a week", "Daily or almost daily")
+  )
+)
+
+# --- IMPORTANT: Standardize covariates on the FINAL dataset ---
+cols_to_scale <- c("age", "age2", paste0("PC", 1:10))
+data_for_model <- data_for_model %>%
+  mutate(across(all_of(cols_to_scale), scale))
+
+# --- 4. Fit Base Ordinal Model ---
+message("Step 4: Fitting the base ordinal probit model...")
+base_formula <- as.formula(
+  "alcohol_intake_frequency ~ sex + age + age2 + PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC7 + PC8 + PC9 + PC10"
+)
+
+clm_base_obj <- tryCatch({
+  ordinal::clm(formula = base_formula, data = data_for_model, link = "probit", model = TRUE)
+}, error = function(e) {
+  stop("Failed to fit the base ordinal model. Original error: ", e$message)
+})
+
+message("Base model fitting successful.")
+
+# --- 5. Calculate Latent Variable Residuals ---
+message("Step 5: Calculating latent variable residuals...")
+model_fit_data <- clm_base_obj$model
+# Ensure we are working with the exact data the model used
+final_data_subset <- data_for_model[as.numeric(rownames(model_fit_data)), ]
+
+alpha_coefs <- clm_base_obj$beta
+X <- model.matrix(object = formula(clm_base_obj), data = model_fit_data)
+eta <- as.vector(X[, names(alpha_coefs), drop = FALSE] %*% alpha_coefs)
+
+thresholds <- c(-Inf, clm_base_obj$alpha, Inf)
+y_idx <- as.numeric(clm_base_obj$y)
+lower_b <- thresholds[y_idx] - eta
+upper_b <- thresholds[y_idx + 1] - eta
+prob_interval <- pnorm(upper_b) - pnorm(lower_b)
+prob_interval[prob_interval < 1e-12] <- 1e-12
+latent_residuals <- (dnorm(lower_b) - dnorm(upper_b)) / prob_interval
+
+# --- 6. Inverse Normal Transformation (Optional but Recommended) ---
+# The latent residuals are not perfectly normally distributed. Applying INT can
+# improve the performance of REGENIE's LMM.
+message("Step 6: Applying inverse normal transformation to residuals...")
+# Rank-based INT: (r - 0.5) / n
+n <- length(latent_residuals)
+rank_residuals <- rank(latent_residuals, na.last = "keep", ties.method = "average")
+latent_pheno_int <- qnorm((rank_residuals - 0.5) / n)
+
+# --- 7. Create and Save REGENIE Input Files ---
+message("Step 7: Saving files for REGENIE...")
+regenie_input_df <- data.frame(
+  FID = final_data_subset$userId,
+  IID = final_data_subset$userId,
+  latent_phenotype = latent_pheno_int,
+  # We also need to save the covariates file REGENIE will use, which can be empty
+  # if we believe all effects are captured. Best practice is to include PCs again.
+  sex = final_data_subset$sex,
+  age = final_data_subset$age,
+  age2 = final_data_subset$age2
+)
+# Add PCs
+pcs_subset <- final_data_subset[, paste0("PC", 1:10)]
+regenie_input_df <- cbind(regenie_input_df, pcs_subset)
+
+
+# Create Phenotype File
+pheno_file_out <- regenie_input_df[, c("FID", "IID", "latent_phenotype")]
+pheno_path <- "/datapool/home/2024102311/UKB/nullmodels/multiclass/alcohol_intake_frequency/latent_pheno/phenotype.txt"
+fwrite(pheno_file_out, file = pheno_path, sep = "\t", col.names = TRUE)
+message(paste("Phenotype file saved to:", pheno_path))
+
+# Create Covariate File
+# REGENIE still needs covariates for its internal computations, even if they
+# are uncorrelated with the residual phenotype. It's robust to include them.
+covar_file_out <- regenie_input_df[, -which(colnames(regenie_input_df) == "latent_phenotype")]
+covar_path <- "/datapool/home/2024102311/UKB/nullmodels/multiclass/alcohol_intake_frequency/latent_pheno/covariates.txt"
+fwrite(covar_file_out, file = covar_path, sep = "\t", col.names = TRUE)
+message(paste("Covariate file saved to:", covar_path))
+
+message("Part A complete. You can now proceed to Part B (REGENIE).")
+```
+
+```R
+#!/bin/bash
+# --- 文件名: 02_run_regenie_step1_only.sh ---
+
+##########################################################
+# Hybrid OrdinalSTAAR Workflow
+# Part B: Run REGENIE Step 1 to generate PRS
+# Author: Zilin Li
+# Date: 19/06/2025
+##########################################################
+
+# Activate your conda environment for REGENIE
+# conda activate regenie_env
+
+# Define file paths
+BED_FILES="/datapool/maths/UKBB/UKB_genotypes_QCed_ZHL/chrall"
+PHENO_FILE="/datapool/home/2024102311/UKB/nullmodels/multiclass/alcohol_intake_frequency/latent_pheno/phenotype.txt"
+COVAR_FILE="/datapool/home/2024102311/UKB/nullmodels/multiclass/alcohol_intake_frequency/latent_pheno/covariates.txt"
+OUTPUT_PREFIX="/datapool/home/2024102311/UKB/nullmodels/multiclass/alcohol_intake_frequency/latent_pheno/regenie_output"
+
+COVAR_LIST="sex,age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10"
+
+echo "--- Starting REGENIE Step 1 to generate polygenic predictions ---"
+regenie \
+--step 1 \
+--bed ${BED_FILES} \
+--phenoFile ${PHENO_FILE} \
+--phenoCol latent_phenotype \
+--covarFile ${COVAR_FILE} \
+--covarColList ${COVAR_LIST} \
+--catCovarList sex \
+--qt \
+--bsize 1000 \
+--out ${OUTPUT_PREFIX} \
+--threads 8 \
+
+echo "--- REGENIE Step 1 complete. Predictions are ready for OrdinalSTAAR. ---"
+
+```
+
+
+
+
+## `OrdinalSTAAR`框架
 
 这个完整的 `OrdinalSTAAR` 框架将包含三个主要文件：
 1.  **`GeneCentricCoding.R`**: 负责基因型预处理，我们直接采用 `SurvSTAAR` 的现代化版本。
@@ -114,59 +294,106 @@ GeneCentricCoding <- function(gdsfile, QC_label, sample.id, variant.id, outfile)
 这个文件将拟合有序零模型，并计算分数检验所需的矩阵，其设计严格遵循 `SurvSTAAR` 的 `NullModel.R`。
 
 ```R
-# --- 文件名: NullModel.R ---
+# --- 文件名: NullModel.R (功能完备的最终版) ---
 
-#' @title Fit a Null Model for Ordinal Phenotypes for a Custom Score Test
-#' @description Fits a cumulative link model and computes the necessary components
-#'   (residuals, weights, variance matrices) for a subsequent custom rare variant
-#'   score test, following the design pattern of SurvSTAAR.
+#' @title 为有序表型拟合一个功能完备的零模型 (支持 LOCO 和 SPA)
+#' @description 本函数拟合一个累积链接模型，并为后续的自定义稀有变异分数检验
+#'   计算必要的组件。其参数和功能设计严格参照 SurvSTAAR，提供了一个完整的数据
+#'   整合、模型拟合和组件计算流程。
 #'
-#' @param formula A formula object for the null model.
-#' @param data The data.frame containing all variables.
-#' @param id_col A character string for the sample ID column.
-#' @param PRS.file An optional path to a PRS file (e.g., from REGENIE) to be
-#'   included as a covariate to adjust for relatedness.
+#' @param genofile 一个可选的基因组文件。可以是 GDS 文件的路径(字符串)，或一个
+#'   SeqVarGDSClass 对象。如果提供，函数将匹配表型和基因型样本。
+#' @param phenofile 表型文件的路径(字符串)，或一个已加载的数据框。
+#' @param outcomeCol 有序结局变量的列名。
+#' @param sampleCol 样本ID列的名称。
+#' @param covCol 基础协变量列名的向量 (不含 PRS)。
+#' @param PRSCol (可选) PRS 列的名称。该列应存在于 phenofile 中。
+#' @param LOCO 一个逻辑值，指示是否启用 LOCO 模式 (默认: TRUE)。
+#' @param chr 一个数值，代表当前正在分析的染色体。如果 LOCO=TRUE，则必须提供。
+#' @param use_SPA (暂未实现，作为占位符) 一个逻辑值，指示是否为 SPA 准备数据。
+#' @param verbose 一个逻辑值，指示是否打印详细的执行信息。
 #'
-#' @return A list containing components needed for a score test.
+#' @return 一个包含分数检验所需组件以及元数据的列表。
 #'
 #' @import ordinal
 #' @import Matrix
 #' @import data.table
-#' @export
-Ordinal_NullModel <- function(formula, data, id_col, PRS.file = NULL) {
-  
-  # --- Step 1: Data Prep and PRS handling ---
-  if (!is.null(PRS.file)) {
-    message("Reading PRS file to incorporate as a fixed covariate...")
-    if (!requireNamespace("data.table", quietly = TRUE)) stop("Package 'data.table' is required.", call. = FALSE)
-    
-    prs_score <- data.table::fread(PRS.file)
-    prs_col_name <- setdiff(colnames(prs_score), id_col)[1]
-    if (is.na(prs_col_name)) stop(paste("Could not identify PRS score column in", PRS.file))
-    
-    colnames(prs_score)[which(colnames(prs_score) != prs_col_name)] <- id_col
-    data <- merge(data, prs_score, by = id_col, all.x = TRUE)
-    
-    if (any(is.na(data[[prs_col_name]]))) {
-        warning("Samples with missing PRS found and removed.")
-        data <- data[!is.na(data[[prs_col_name]]), ]
+#' @import SeqArray
+#'
+Ordinal_NullModel <- function(genofile = NULL, phenofile, outcomeCol, sampleCol,
+                              covCol = NULL, PRSCol = NULL, LOCO = TRUE, chr = NULL,
+                              use_SPA = FALSE, verbose = FALSE) {
+
+  # --- Part 1: Load and Prepare Phenotype Data ---
+  if (!is.null(phenofile)) {
+    if (is.character(phenofile)) {
+      if (!file.exists(phenofile)) stop("Phenotype file does not exist!")
+      use_data <- data.table::fread(phenofile, data.table = FALSE)
+    } else {
+      use_data <- as.data.frame(phenofile)
     }
-    
-    formula <- as.formula(paste(as.character(formula)[2], "~", 
-                                as.character(formula)[3], "+", prs_col_name))
+    use_data <- na.omit(use_data[, c(sampleCol, outcomeCol, covCol, PRSCol)])
+  } else {
+    stop("You must provide the phenotype data via the 'phenofile' argument.")
   }
   
-  # --- Step 2: Fit the Ordinal Model ---
-  message("Fitting the ordinal null model with ordinal::clm...")
-  clm_obj <- ordinal::clm(formula = formula, data = data, link = "probit", model = TRUE)
+  # --- Part 2: Match Samples with Genotype Data (if provided) ---
+  if (!is.null(genofile)) {
+    message("Matching phenotype samples with genotype data...")
+    if (inherits(genofile, "SeqVarGDSClass")) {
+      sample.geno <- SeqArray::seqGetData(genofile, "sample.id")
+    } else if (is.character(genofile)) {
+      fam_file <- paste0(genofile, ".fam")
+      if (!file.exists(fam_file)) stop("PLINK .fam file not found!")
+      sample.geno <- data.table::fread(fam_file, data.table = FALSE)$V2
+    } else {
+      stop("'genofile' must be a GDS object or a path to a PLINK file.")
+    }
+    
+    sample.pheno <- use_data[, sampleCol]
+    common_samples <- intersect(sample.pheno, sample.geno)
+    
+    if (length(common_samples) == 0) stop("No common samples found between phenotype and genotype files.")
+    
+    use_data <- use_data[use_data[, sampleCol] %in% common_samples, ]
+    message(paste(nrow(use_data), "samples remain after matching."))
+  }
   
-  # --- Step 3: Extract Core Components (Residuals and Predictions) ---
-  message("Extracting residuals and model components...")
+  # --- Part 3: Dynamic Formula Construction ---
+  if(verbose) print("Constructing model formula...")
+  
+  # Ensure outcome is an ordered factor
+  if (!is.ordered(use_data[[outcomeCol]])) {
+    use_data[[outcomeCol]] <- as.ordered(use_data[[outcomeCol]])
+  }
+  
+  # Combine all covariates
+  all_covars <- covCol
+  if (!is.null(PRSCol)) {
+    all_covars <- c(all_covars, PRSCol)
+  }
+  
+  if (is.null(all_covars)) {
+    formula_null <- as.formula(paste(outcomeCol, "~ 1"))
+  } else {
+    formula_null <- as.formula(paste(outcomeCol, "~", paste(all_covars, collapse = " + ")))
+  }
+  if(verbose) print(formula_null)
+
+  # --- Part 4: Fit the Ordinal Null Model ---
+  if(verbose) print("Fitting null model with ordinal::clm...")
+  
+  clm_obj <- ordinal::clm(formula = formula_null, data = use_data, link = "probit", model = TRUE)
+  if(verbose) print(summary(clm_obj))
+  
+  # --- Part 5: Calculate Residuals and Variance Components ---
+  if(verbose) print("Calculating latent residuals and variance components...")
+  
   model_data <- clm_obj$model
   kept_row_indices <- as.numeric(rownames(model_data))
-  sample_ids <- data[[id_col]][kept_row_indices]
+  sample_ids <- use_data[[sampleCol]][kept_row_indices]
   
-  # Calculate latent residuals
+  # Latent residuals and conditional variance calculation (as before)
   alpha_coefs <- clm_obj$beta
   X <- model.matrix(object = formula(clm_obj), data = model_data)
   eta <- as.vector(X[, names(alpha_coefs), drop = FALSE] %*% alpha_coefs)
@@ -178,21 +405,19 @@ Ordinal_NullModel <- function(formula, data, id_col, PRS.file = NULL) {
   prob_interval[prob_interval < 1e-12] <- 1e-12
   residuals <- (dnorm(lower_b) - dnorm(upper_b)) / prob_interval
   
-  # Calculate conditional variance
   term1 <- (lower_b * dnorm(lower_b) - upper_b * dnorm(upper_b)) / prob_interval
   var_y <- 1 + term1 - residuals^2
   var_y[!is.finite(var_y) | var_y < 1e-8] <- 1
   
-  # --- Step 4: Calculate Variance Components for the Score Test ---
-  message("Calculating variance components for the score test...")
+  # Score test variance components (as before)
   W_mat <- Diagonal(x = 1/var_y)
   X_mat <- model.matrix(clm_obj)
   XWX_mat <- crossprod(X_mat, W_mat %*% X_mat)
   XWX_inv <- solve(XWX_mat)
   WX_mat <- W_mat %*% X_mat
   
-  # --- Step 5: Assemble the final list ---
-  fit_null <- list(
+  # --- Part 6: Assemble the Final List with LOCO information ---
+  base_list <- list(
     residuals = residuals,
     sample_ids = sample_ids,
     W_mat = W_mat,
@@ -202,9 +427,21 @@ Ordinal_NullModel <- function(formula, data, id_col, PRS.file = NULL) {
     formula_null = formula(clm_obj),
     coefficients_null = coef(clm_obj),
     use_data = model_data,
-    is_residual_variance_constant = all(abs(diff(var_y)) < 1e-6)
+    use_SPA = use_SPA
   )
   
+  if (is.null(LOCO) || isFALSE(LOCO)) {
+    fit_null <- c(base_list, list(LOCO = FALSE))
+  } else {
+    fit_null <- c(base_list, list(LOCO = TRUE, chr = chr))
+  }
+  
+  # Placeholder for future SPA implementation
+  if(use_SPA){
+    # fit_null <- CGF4LatentRes(fit_null = fit_null, ...)
+    warning("use_SPA=TRUE is not yet implemented for Ordinal_NullModel. Skipping CGF calculation.")
+  }
+
   message("Ordinal null model fitting complete.")
   return(fit_null)
 }
