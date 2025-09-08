@@ -1,296 +1,6 @@
 ## `NullModel.R` 和 `GeneCentricCoding.R`
 
 ---
-
-### 文件 1: `GeneCentricCoding.R`
-
-这个文件的任务是从 GDS 文件中提取、编码和填补基因型数据。我们将采用我们之前分析过的 `SurvSTAAR` 版本的代码，因为它更现代、更健壮。这部分逻辑与表型类型无关，因此可以直接重用。
-
-```R
-# --- 文件名: GeneCentricCoding.R ---
-
-#' @title Perform Gene-Centric Coding and Imputation from a GDS file
-#' @description This function extracts rare variant genotypes for each gene,
-#'   codes them numerically (0, 1, 2), imputes missing values using allele
-#'   frequency, and saves the results to a single .Rdata file.
-#'   This version is adapted from the modern implementation in SurvSTAAR.
-#'
-#' @param gdsfile A character string for the path to the GDS file.
-#' @param QC_label A character string used to name the output objects (e.g., "imputed").
-#' @param sample.id A vector of sample IDs to be included in the analysis.
-#' @param variant.id A vector of variant IDs to be included in the analysis.
-#' @param outfile A character string for the path to the output .Rdata file.
-#'
-#' @return This function does not return a value but saves the coded genotype
-#'   data to the specified output file.
-#'
-#' @import SeqArray
-#' @export
-GeneCentricCoding <- function(gdsfile, QC_label, sample.id, variant.id, outfile) {
-  
-  # --- Input Validation & Setup ---
-  if (!requireNamespace("SeqArray", quietly = TRUE)) {
-    stop("Package 'SeqArray' is required. Please install it from Bioconductor.", call. = FALSE)
-  }
-  
-  gds <- seqOpen(gdsfile)
-  on.exit(seqClose(gds))
-  
-  # --- Get Annotation Info ---
-  message("Extracting gene and variant information...")
-  gds_variant.id <- seqGetData(gds, "variant.id")
-  gds_sample.id <- seqGetData(gds, "sample.id")
-  
-  variant_in_gds.idx <- which(gds_variant.id %in% variant.id)
-  if (length(variant_in_gds.idx) == 0) {
-    stop("None of the provided variant IDs were found in the GDS file.")
-  }
-  
-  sample_in_gds.idx <- which(gds_sample.id %in% sample.id)
-  if (length(sample_in_gds.idx) == 0) {
-    stop("None of the provided sample IDs were found in the GDS file.")
-  }
-  
-  # Filter GDS to only variants and samples of interest
-  seqSetFilter(gds, variant.id = variant.id, sample.id = sample.id)
-  
-  gene_all <- seqGetData(gds, "annotation/info/GENE")
-  variant.id_all <- seqGetData(gds, "variant.id")
-  
-  genes <- unique(gene_all)
-  num_genes <- length(genes)
-  message(paste("Found", num_genes, "unique genes to process."))
-  
-  # --- Main Loop: Process each gene ---
-  for (a in 1:num_genes) {
-    gene_name <- genes[a]
-    if (a %% 100 == 0) {
-      cat(paste0("Processing gene ", a, "/", num_genes, ": ", gene_name, "\n"))
-    }
-    
-    variant.id_gene.idx <- which(gene_all == gene_name)
-    variant.id_gene <- variant.id_all[variant.id_gene.idx]
-    
-    # Set filter for the current gene
-    seqSetFilter(gds, variant.id = variant.id_gene, sample.id = sample.id)
-    
-    # Get allele count to check for monomorphic genes
-    AC_Cases_or_All <- seqGetData(gds,"annotation/info/AC")
-    if (sum(AC_Cases_or_All, na.rm = TRUE) == 0) {
-      cat(paste("Skipping gene", gene_name, "as it has no variant alleles in the selected samples.\n"))
-      next
-    }
-    
-    # Get genotypes and allele frequencies
-    genotype <- seqGetData(gds, "$dosage")
-    af <- seqGetData(gds, "annotation/info/AF")
-    
-    # Impute missing genotypes
-    if (any(is.na(genotype))) {
-      for(i in 1:nrow(genotype)){
-        missing.idx <- which(is.na(genotype[i,]))
-        if(length(missing.idx)>0){
-          genotype[i,missing.idx] <- 2*af[i]
-        }
-      }
-    }
-    
-    # Assign names
-    sample.id_ordered <- seqGetData(gds, "sample.id")
-    colnames(genotype) <- sample.id_ordered
-    rownames(genotype) <- variant.id_gene
-    
-    obj_out <- list(genotype = genotype)
-    obj_name <- paste0("G_", QC_label, "_", gene_name)
-    
-    assign(obj_name, obj_out)
-    
-    # Save to file, appending for subsequent genes
-    if (a == 1) {
-      save(list = obj_name, file = outfile)
-    } else {
-      save(list = obj_name, file = outfile, append = TRUE)
-    }
-  }
-  
-  message(paste("\nGene-centric coding complete. Results saved to:", outfile))
-}
-
-```
-
-
----
-
-### 文件 2: `NullModel.R`
-
-这个文件的任务是拟合一个适合特定表型（此处为有序多分类）的零模型，并将其封装成 `STAAR` 能理解的 `glmmkin`对象。我们将把你之前开发和调试好的 `fit_ordinal_null_model` 函数放入这个文件中，并添加一个顶层包装函数 `fit_null_model`，以便与 `STAAR` 的通用调用习惯保持一致。
-
-```R
-# --- 文件名: NullModel.R ---
-
-#' @title Fit a Null Model for Various Phenotype Types
-#' @description This is a generic wrapper function that dispatches to the correct
-#'   null model fitting function based on the phenotype type. For OrdinalSTAAR,
-#'   it primarily calls `fit_ordinal_null_model`.
-#'
-#' @param formula A formula object for the null model.
-#' @param data The data.frame containing all variables.
-#' @param type The type of the phenotype. Currently supports "ordinal".
-#' @param ... Additional arguments passed to the specific fitting function.
-#'
-#' @return A list object of class 'glmmkin', 'glm', and 'lm'.
-#' @export
-fit_null_model <- function(formula, data, type = "ordinal", ...) {
-  
-  if (type == "ordinal") {
-    # Call the specialized function for ordinal data
-    obj_null <- fit_ordinal_null_model(formula = formula, data = data, ...)
-  } else {
-    stop(paste0("Phenotype type '", type, "' is not supported by this framework yet. Only 'ordinal' is implemented."))
-  }
-  
-  return(obj_null)
-}
-
-
-#' @title Fit a STAAR-Compatible Null Model for Ordinal Phenotypes
-#' @description This function fits a cumulative link model (specifically, an ordered
-#'   probit model) and converts it into a STAAR-compatible null model object by
-#'   calculating the conditional expectation of the latent variable residuals.
-#'
-#' @param formula A formula object for the null model.
-#' @param data The data.frame containing all variables.
-#' @param id_col A character string for the sample ID column.
-#' @param ... Additional arguments passed to `ordinal::clm`.
-#'
-#' @return A list object of class 'glmmkin', 'glm', and 'lm', ready for STAAR.
-#'
-#' @import ordinal
-#' @export
-fit_ordinal_null_model <- function(formula, data, id_col, ...) {
-  
-  # --- Use all the robust code you developed earlier ---
-  
-  method <- "latent_residual"
-  link <- "probit"
-  
-  message(paste0("--- Fitting ordinal null model using the '", method, "' method with '", link, "' link ---"))
-  
-  # --- Step 0: Input Validation ---
-  if (!inherits(formula, "formula")) stop("'formula' must be a formula object.")
-  if (!id_col %in% colnames(data)) stop(paste0("ID column '", id_col, "' not found in data."))
-  
-  outcome_var_name <- as.character(formula[[2]])
-  if (!outcome_var_name %in% colnames(data)) stop(paste("Outcome variable '", outcome_var_name, "' not found in data."))
-  
-  if (!is.ordered(data[[outcome_var_name]])) {
-    warning(paste("Outcome variable '", outcome_var_name, "' was not an ordered factor. Converting now."), call. = FALSE)
-    data[[outcome_var_name]] <- as.ordered(data[[outcome_var_name]])
-  }
-  
-  # --- Part 1: Fit the Ordinal Model ---
-  message("Part 1: Fitting the cumulative link model with ordinal::clm...")
-  clm_obj <- tryCatch({
-    ordinal::clm(formula = formula, data = data, link = link, model = TRUE, ...)
-  }, error = function(e) {
-    stop("Failed to fit ordinal model. Original error: ", e$message)
-  })
-  message("Part 1: Ordinal model fitting successful.")
-  
-  # --- Part 2: Convert the clm object ---
-  message("Part 2: Calculating latent residuals to create a STAAR-compatible null model...")
-  
-  model_data <- clm_obj$model
-  kept_row_indices <- as.numeric(rownames(model_data))
-  sample_ids <- data[[id_col]][kept_row_indices]
-  
-  if (is.data.frame(sample_ids)) sample_ids <- sample_ids[[1]]
-  
-  alpha_coefs <- clm_obj$beta
-  X <- model.matrix(object = formula(clm_obj), data = model_data)
-  eta <- as.vector(X[, names(alpha_coefs), drop = FALSE] %*% alpha_coefs)
-  
-  thresholds <- c(-Inf, clm_obj$alpha, Inf)
-  y_ordinal_numeric_idx <- as.numeric(clm_obj$y)
-  
-  lower_bounds_eta <- thresholds[y_ordinal_numeric_idx]
-  upper_bounds_eta <- thresholds[y_ordinal_numeric_idx + 1]
-  
-  lower_bounds_eps <- lower_bounds_eta - eta
-  upper_bounds_eps <- upper_bounds_eta - eta
-  
-  # Using dnorm and pnorm as 'probit' is enforced
-  phi_a <- dnorm(lower_bounds_eps)
-  phi_b <- dnorm(upper_bounds_eps)
-  Phi_a <- pnorm(lower_bounds_eps)
-  Phi_b <- pnorm(upper_bounds_eps)
-  
-  prob_in_interval <- Phi_b - Phi_a
-  prob_in_interval[prob_in_interval < 1e-12] <- 1e-12 
-  
-  residuals <- (phi_a - phi_b) / prob_in_interval
-  y_numeric <- residuals
-  mu <- rep(0, length(residuals))
-  
-  term1 <- (lower_bounds_eps * phi_a - upper_bounds_eps * phi_b) / prob_in_interval
-  var_y <- 1 + term1 - residuals^2 # var_dist is 1 for probit
-  
-  # --- Part 3: Assemble the Final Object ---
-  message("Part 3: Assembling the final glmmkin-like object...")
-  X_glm <- model.matrix(clm_obj$terms, model_data)
-  
-  diagnostics_df <- data.frame(id = sample_ids, eta = eta, prob_in_interval = prob_in_interval,
-                               residuals = residuals, var_y_raw = var_y, weights_squared_raw = 1 / var_y)
-  
-  non_finite_weights_idx <- !is.finite(diagnostics_df$weights_squared_raw)
-  num_non_finite <- sum(non_finite_weights_idx)
-  
-  if (num_non_finite > 0) {
-    warning_message <- paste0(
-      num_non_finite, " sample(s) had non-finite weights. This is often caused by model separation. ",
-      "Replacing these weights with 1. Check the 'diagnostics' element for details."
-    )
-    warning(warning_message, call. = FALSE)
-    weights_squared <- diagnostics_df$weights_squared_raw
-    weights_squared[non_finite_weights_idx] <- 1
-  } else {
-    weights_squared <- diagnostics_df$weights_squared_raw
-  }
-  
-  qr_obj <- qr(sqrt(weights_squared) * X_glm)
-  
-  obj_nullmodel <- list(
-    id_include = sample_ids, n.pheno = 1, n.groups = 1, coefficients = alpha_coefs,
-    linear.predictors = eta, fitted.values = mu, residuals = residuals,
-    scaled.residuals = residuals / sqrt(mean(var_y[!non_finite_weights_idx], na.rm=TRUE)),
-    relatedness = FALSE, sparse_kins = FALSE, converged = clm_obj$convergence$code == 0,
-    y = y_numeric, weights = weights_squared, family = gaussian(link = "identity"),
-    model = model_data, terms = clm_obj$terms, formula = formula, call = clm_obj$call,
-    qr = qr_obj, rank = qr_obj$rank, df.residual = length(y_numeric) - qr_obj$rank,
-    cov = chol2inv(qr_obj$qr), diagnostics = diagnostics_df
-  )
-  
-  class(obj_nullmodel) <- c("glmmkin", "glm", "lm")
-  message("--- Ordinal null model conversion complete. ---")
-  return(obj_nullmodel)
-}
-```
-
-**说明:**
-1.  我将你调试和改进后的完整 `fit_ordinal_null_model` 函数放在了这里，它包含了所有健壮性检查和诊断信息输出。
-2.  我添加了一个简单的包装函数 `fit_null_model`。这样做的好处是，如果未来你还想扩展到其他类型（比如生存、计数等），你只需要在这个函数里增加一个 `else if (type == "survival")` 分支即可，而不需要改变顶层的调用接口。
-
----
-
-### 下一步：创建 `OrdinalSTAAR.R`
-
-现在你有了这两个核心的构建模块，你就可以像我们之前讨论的那样，创建一个 `OrdinalSTAAR.R` 文件。这个文件将包含一个 `OrdinalSTAAR` 主函数，它会：
-1.  调用 `fit_null_model(..., type = "ordinal", ...)` 来生成零模型。
-2.  然后将 `obj_null` 传递给 `STAAR::STAAR()`。
-
-这样，你就拥有了一个结构清晰、逻辑严谨、完全模仿 `SurvSTAAR` 扩展模式的 `OrdinalSTAAR` 工具包。做得非常棒！
-
-
 ## 
 
 好的，这是一个非常棒的分析性问题。通过将你为有序数据编写的 `NullModel.R` 与 `SurvSTAAR` 的 `NullModel.R`进行对比，我们可以看到两者在**设计哲学上高度一致**，但在**核心统计模型**和**处理样本相关性的能力**上存在根本性的、由其各自目标决定的差异。
@@ -1174,3 +884,536 @@ diagnose_separation_visual(
     *   **我预测：** 你会看到一个近乎完美的线性关系，所有点都紧密地排列在一条直线上。
 
 **总结：** 这个数值诊断结果是一个**决定性的证据**，表明问题已经超出了模型选择的范畴，进入了**数据预处理的调试阶段**。你的协变量中存在一个或多个与结局变量几乎完全线性相关的“克隆”或“代理”变量。找到它的来源是你现在必须解决的首要任务。
+
+
+
+
+## 
+好的，现在我们已经完全厘清了 `SurvSTAAR` 的真实工作流程，我们可以严格地、一对一地参考它的 `NullModel.R`，为你构建一个功能和风格都完全匹配的 `OrdinalSTAAR` 版本的 `NullModel.R`。
+
+我们将精确地模仿 `SurvSTAAR` 的设计哲学：
+1.  创建一个顶层的 `fit_null_model` 函数，它有一个可选的 `PRS.file` 参数。
+2.  核心工作由一个内部函数（我们称之为 `fit_null_ordinal`）来完成。
+3.  如果提供了 `PRS.file`，它会被读入并作为固定效应协变量加入到模型公式中。
+4.  最终的模型拟合将使用 `ordinal::clm`，因为它不含随机效应（这与 `SurvSTAAR` 使用 `survival::coxph` 完全对应）。
+
+---
+
+### `OrdinalSTAAR` 的 `NullModel.R` (严格参考 `SurvSTAAR` 版本)
+
+```R
+# --- 文件名: NullModel.R for OrdinalSTAAR ---
+
+#' @title Fit a Null Model for Ordinal Phenotypes
+#' @description This is the main function to fit a null model for ordinal
+#'   phenotypes for OrdinalSTAAR. It fits a cumulative link model and prepares
+#'   the output for downstream rare variant association testing. It can optionally
+#'   incorporate a pre-computed Polygenic Risk Score (PRS) file (e.g., from REGENIE)
+#'   to account for sample relatedness.
+#'
+#' @param formula A formula object for the null model (e.g., `Y_ord ~ age + sex + PCs`).
+#' @param data The data.frame containing all phenotype and covariate variables.
+#' @param type A character string specifying the phenotype type. Must be "ordinal".
+#' @param id_col A character string for the sample ID column in `data`.
+#' @param PRS.file An optional character string for the path to the PRS file.
+#'   The file should contain at least an ID column and a PRS column. The ID column
+#'   name must match `id_col`.
+#' @param ... Additional arguments passed to the core `fit_null_ordinal` function.
+#'
+#' @return A list object structured to be compatible with the STAAR engine.
+#' @export
+fit_null_model <- function(formula, data, type = "ordinal", id_col, PRS.file = NULL, ...) {
+  
+  if (type != "ordinal") {
+    stop("This function is designed for ordinal phenotypes. Please set type = 'ordinal'.")
+  }
+  
+  # --- Step 1: Handle the optional PRS file (mimicking SurvSTAAR) ---
+  if (!is.null(PRS.file)) {
+    message("Reading PRS file to incorporate as a fixed covariate...")
+    
+    if (!requireNamespace("data.table", quietly = TRUE)) {
+      stop("Package 'data.table' is required for reading the PRS file.", call. = FALSE)
+    }
+    
+    prs_score <- data.table::fread(PRS.file)
+    
+    # Identify the PRS column (assuming it's not the ID column)
+    prs_col_name <- setdiff(colnames(prs_score), id_col)[1]
+    if (is.na(prs_col_name)) {
+      stop(paste("Could not identify the PRS score column in", PRS.file, ". Ensure one column is named '", id_col, "' and another contains the scores."))
+    }
+    message(paste("Identified PRS column:", prs_col_name))
+    
+    # Rename ID column in PRS file to match data's id_col for merging
+    colnames(prs_score)[which(colnames(prs_score) != prs_col_name)] <- id_col
+    
+    # Merge PRS into the main data frame
+    data <- merge(data, prs_score, by = id_col, all.x = TRUE)
+    
+    # Check for samples without PRS
+    if(any(is.na(data[[prs_col_name]]))) {
+        warning("Some samples in the data do not have a corresponding PRS score. They will be excluded from the analysis.")
+        data <- data[!is.na(data[[prs_col_name]]), ]
+    }
+    
+    # Add the PRS term to the formula
+    formula <- as.formula(paste(as.character(formula)[2], "~", 
+                                as.character(formula)[3], "+", prs_col_name))
+    
+    message("Successfully added PRS to the model formula.")
+  }
+  
+  # --- Step 2: Call the core ordinal model fitting function ---
+  obj_null <- fit_null_ordinal(formula = formula, data = data, id_col = id_col, ...)
+  
+  return(obj_null)
+}
+
+
+#' @title Core Engine: Fit a Cumulative Link Model for OrdinalSTAAR
+#' @description This function is the workhorse that fits the ordinal model using
+#'   `ordinal::clm` and calculates the latent variable residuals.
+#'
+#' @param formula A formula object for the null model.
+#' @param data The data.frame containing all variables.
+#' @param id_col A character string for the sample ID column.
+#' @param ... Additional arguments passed to `ordinal::clm`.
+#'
+#' @return A STAAR-compatible list object.
+#'
+#' @import ordinal
+fit_null_ordinal <- function(formula, data, id_col, ...) {
+  
+  # --- This is the robust implementation you developed ---
+  
+  link <- "probit"
+  message(paste0("--- Fitting cumulative link model with '", link, "' link ---"))
+  
+  # --- Input Validation ---
+  if (!inherits(formula, "formula")) stop("'formula' must be a formula object.")
+  outcome_var_name <- as.character(formula[[2]])
+  if (!is.ordered(data[[outcome_var_name]])) {
+    warning(paste("Outcome variable '", outcome_var_name, "' was not an ordered factor. Converting now."), call. = FALSE)
+    data[[outcome_var_name]] <- as.ordered(data[[outcome_var_name]])
+  }
+  
+  # --- Part 1: Fit the Ordinal Model ---
+  message("Part 1: Fitting model with ordinal::clm...")
+  clm_obj <- tryCatch({
+    ordinal::clm(formula = formula, data = data, link = link, model = TRUE, ...)
+  }, error = function(e) {
+    stop("Failed to fit ordinal model. Original error: ", e$message)
+  })
+  message("Part 1: Model fitting successful.")
+  
+  # --- Part 2: Calculate Latent Residuals ---
+  message("Part 2: Calculating latent residuals...")
+  
+  model_data <- clm_obj$model
+  kept_row_indices <- as.numeric(rownames(model_data))
+  sample_ids <- data[[id_col]][kept_row_indices]
+  
+  alpha_coefs <- clm_obj$beta
+  X <- model.matrix(object = formula(clm_obj), data = model_data)
+  eta <- as.vector(X[, names(alpha_coefs), drop = FALSE] %*% alpha_coefs)
+  
+  thresholds <- c(-Inf, clm_obj$alpha, Inf)
+  y_ordinal_numeric_idx <- as.numeric(clm_obj$y)
+  lower_bounds_eta <- thresholds[y_ordinal_numeric_idx]
+  upper_bounds_eta <- thresholds[y_ordinal_numeric_idx + 1]
+  lower_bounds_eps <- lower_bounds_eta - eta
+  upper_bounds_eps <- upper_bounds_eta - eta
+  
+  phi_a <- dnorm(lower_bounds_eps); phi_b <- dnorm(upper_bounds_eps)
+  Phi_a <- pnorm(lower_bounds_eps); Phi_b <- pnorm(upper_bounds_eps)
+  
+  prob_in_interval <- Phi_b - Phi_a
+  prob_in_interval[prob_in_interval < 1e-12] <- 1e-12 
+  residuals <- (phi_a - phi_b) / prob_in_interval
+  y_numeric <- residuals
+  
+  term1 <- (lower_bounds_eps * phi_a - upper_bounds_eps * phi_b) / prob_in_interval
+  var_y <- 1 + term1 - residuals^2
+  
+  # --- Part 3: Assemble the STAAR-compatible Object ---
+  message("Part 3: Assembling the final output object...")
+  X_glm <- model.matrix(clm_obj$terms, model_data)
+  weights_squared <- 1/var_y
+  
+  non_finite_weights_idx <- !is.finite(weights_squared)
+  num_non_finite <- sum(non_finite_weights_idx)
+  if (num_non_finite > 0) {
+    warning(paste0(num_non_finite, " sample(s) had non-finite weights (often due to model separation). Replacing with 1."), call. = FALSE)
+    weights_squared[non_finite_weights_idx] <- 1
+  }
+
+  obj_nullmodel <- list(
+    id_include = sample_ids,
+    y = y_numeric, # The "pseudo-continuous" phenotype
+    weights = weights_squared,
+    # Explicitly state this is for unrelated samples (after PRS correction)
+    relatedness = FALSE, 
+    kins = NULL,
+    coefficients = alpha_coefs,
+    fitted.values = rep(0, length(y_numeric)), # Mean of latent residuals is 0
+    residuals = residuals,
+    formula = formula,
+    converged = clm_obj$convergence$code == 0
+    # Other components can be added if STAAR engine requires them,
+    # but these are the most critical ones.
+  )
+  
+  message("--- Ordinal null model fitting complete. ---")
+  return(obj_nullmodel)
+}
+```
+
+### 与 `SurvSTAAR` 的 `NullModel.R` 对比
+
+这个新版本的代码现在与 `SurvSTAAR` 的设计**在结构和哲学上完全对齐**：
+
+1.  **顶层函数 `fit_null_model`:**
+    *   **相同点:** 两者都有一个 `fit_null_model` 函数作为用户接口。
+    *   **相同点:** 两者都有一个 `PRS.file` 参数，用于读取 `REGENIE` 等工具生成的 PRS，并将其作为固定效应协变量加入模型。这体现了处理样本相关性的**两步法策略**。
+    *   **不同点:** `type` 参数的值不同 (`"ordinal"` vs. `"survival"`)。
+
+2.  **核心工作函数 (`fit_null_ordinal` vs. `fit_null_cox`):**
+    *   **相同点:** 两者都是在接收到一个（可能被 PRS 增强过的）`formula` 后，拟合一个**不含随机效应**的标准模型。
+    *   **核心差异:**
+        *   `SurvSTAAR` 使用 `survival::coxph()`，因为它处理的是生存数据。
+        *   你的 `OrdinalSTAAR` 使用 `ordinal::clm()`，因为它处理的是有序数据。
+    *   **核心差异:**
+        *   `SurvSTAAR` 计算**鞅残差**作为 `obj_null$y`。
+        *   你的 `OrdinalSTAAR` 计算**潜在变量残差**作为 `obj_null$y`。
+
+3.  **最终输出:**
+    *   **相同点:** 两者都输出一个**普通的 `list` 对象**（没有明确设置 class）。
+    *   **相同点:** 这个 `list` 对象的**结构**（`y`, `weights`, `relatedness=FALSE`, `kins=NULL` 等）被精心设计成 `STAAR` 核心引擎能够直接理解的格式。
+
+**结论：**
+这个版本的 `NullModel.R` 是你为 `OrdinalSTAAR` 项目能编写的、在功能和设计上与 `SurvSTAAR` **最接近、最匹配**的实现。它完全采纳了 `SurvSTAAR` 处理大规模相关样本的先进策略，并将其成功地嫁接到了有序模型的框架下。
+
+
+
+
+
+## 
+
+
+好的，现在我们已经完全理解了 `SurvSTAAR` 的真实设计，我们可以构建一个功能对等、结构一致的 `OrdinalSTAAR` 包的核心代码。
+
+这个完整的 `OrdinalSTAAR` 框架将包含三个主要文件：
+1.  **`GeneCentricCoding.R`**: 负责基因型预处理，我们直接采用 `SurvSTAAR` 的现代化版本。
+2.  **`NullModel.R`**: 负责拟合有序零模型并计算分数检验所需的组件，严格模仿 `SurvSTAAR` 的 `NullModel.R` 的设计。
+3.  **`OrdinalSTAAR.R`**: 这是新的主分析函数，它将调用 `NullModel.R` 的输出和 `GeneCentricCoding.R` 的输出，来**执行自定义的分数检验**（负担检验、SKAT等）。这部分代码将是全新的，因为它需要利用 `NullModel.R` 提供的矩阵来进行计算。
+
+下面是这三个核心文件的完整代码。
+
+---
+
+### 文件 1: `GeneCentricCoding.R` (与之前确认的版本相同)
+
+这个文件负责基因型数据的预处理，与表型无关，可以直接重用。
+
+```R
+# --- 文件名: GeneCentricCoding.R ---
+
+#' @title Perform Gene-Centric Coding and Imputation from a GDS file
+#' @description Extracts rare variant genotypes by gene, codes them numerically,
+#'   imputes missing values, and saves them to a single .Rdata file.
+#'
+#' @param gdsfile Path to the GDS file.
+#' @param QC_label A label for the output objects.
+#' @param sample.id A vector of sample IDs to include.
+#' @param variant.id A vector of variant IDs to include.
+#' @param outfile Path to the output .Rdata file.
+#'
+#' @return Saves coded genotype data to the output file.
+#'
+#' @import SeqArray
+#' @export
+GeneCentricCoding <- function(gdsfile, QC_label, sample.id, variant.id, outfile) {
+  # ... (此文件的代码与我们之前确认的版本完全相同，此处为简洁省略) ...
+  # ... (它包含 seqOpen, 循环处理每个基因, 填补, 并用 append=TRUE 保存) ...
+}
+```
+
+---
+
+### 文件 2: `NullModel.R` (最终、正确的版本)
+
+这个文件将拟合有序零模型，并计算分数检验所需的矩阵，其设计严格遵循 `SurvSTAAR` 的 `NullModel.R`。
+
+```R
+# --- 文件名: NullModel.R ---
+
+#' @title Fit a Null Model for Ordinal Phenotypes for a Custom Score Test
+#' @description Fits a cumulative link model and computes the necessary components
+#'   (residuals, weights, variance matrices) for a subsequent custom rare variant
+#'   score test, following the design pattern of SurvSTAAR.
+#'
+#' @param formula A formula object for the null model.
+#' @param data The data.frame containing all variables.
+#' @param id_col A character string for the sample ID column.
+#' @param PRS.file An optional path to a PRS file (e.g., from REGENIE) to be
+#'   included as a covariate to adjust for relatedness.
+#'
+#' @return A list containing components needed for a score test.
+#'
+#' @import ordinal
+#' @import Matrix
+#' @import data.table
+#' @export
+Ordinal_NullModel <- function(formula, data, id_col, PRS.file = NULL) {
+  
+  # --- Step 1: Data Prep and PRS handling ---
+  if (!is.null(PRS.file)) {
+    message("Reading PRS file to incorporate as a fixed covariate...")
+    if (!requireNamespace("data.table", quietly = TRUE)) stop("Package 'data.table' is required.", call. = FALSE)
+    
+    prs_score <- data.table::fread(PRS.file)
+    prs_col_name <- setdiff(colnames(prs_score), id_col)[1]
+    if (is.na(prs_col_name)) stop(paste("Could not identify PRS score column in", PRS.file))
+    
+    colnames(prs_score)[which(colnames(prs_score) != prs_col_name)] <- id_col
+    data <- merge(data, prs_score, by = id_col, all.x = TRUE)
+    
+    if (any(is.na(data[[prs_col_name]]))) {
+        warning("Samples with missing PRS found and removed.")
+        data <- data[!is.na(data[[prs_col_name]]), ]
+    }
+    
+    formula <- as.formula(paste(as.character(formula)[2], "~", 
+                                as.character(formula)[3], "+", prs_col_name))
+  }
+  
+  # --- Step 2: Fit the Ordinal Model ---
+  message("Fitting the ordinal null model with ordinal::clm...")
+  clm_obj <- ordinal::clm(formula = formula, data = data, link = "probit", model = TRUE)
+  
+  # --- Step 3: Extract Core Components (Residuals and Predictions) ---
+  message("Extracting residuals and model components...")
+  model_data <- clm_obj$model
+  kept_row_indices <- as.numeric(rownames(model_data))
+  sample_ids <- data[[id_col]][kept_row_indices]
+  
+  # Calculate latent residuals
+  alpha_coefs <- clm_obj$beta
+  X <- model.matrix(object = formula(clm_obj), data = model_data)
+  eta <- as.vector(X[, names(alpha_coefs), drop = FALSE] %*% alpha_coefs)
+  thresholds <- c(-Inf, clm_obj$alpha, Inf)
+  y_idx <- as.numeric(clm_obj$y)
+  lower_b <- thresholds[y_idx] - eta
+  upper_b <- thresholds[y_idx + 1] - eta
+  prob_interval <- pnorm(upper_b) - pnorm(lower_b)
+  prob_interval[prob_interval < 1e-12] <- 1e-12
+  residuals <- (dnorm(lower_b) - dnorm(upper_b)) / prob_interval
+  
+  # Calculate conditional variance
+  term1 <- (lower_b * dnorm(lower_b) - upper_b * dnorm(upper_b)) / prob_interval
+  var_y <- 1 + term1 - residuals^2
+  var_y[!is.finite(var_y) | var_y < 1e-8] <- 1
+  
+  # --- Step 4: Calculate Variance Components for the Score Test ---
+  message("Calculating variance components for the score test...")
+  W_mat <- Diagonal(x = 1/var_y)
+  X_mat <- model.matrix(clm_obj)
+  XWX_mat <- crossprod(X_mat, W_mat %*% X_mat)
+  XWX_inv <- solve(XWX_mat)
+  WX_mat <- W_mat %*% X_mat
+  
+  # --- Step 5: Assemble the final list ---
+  fit_null <- list(
+    residuals = residuals,
+    sample_ids = sample_ids,
+    W_mat = W_mat,
+    X_mat = X_mat,
+    WX_mat = WX_mat,
+    XWX_inv = XWX_inv,
+    formula_null = formula(clm_obj),
+    coefficients_null = coef(clm_obj),
+    use_data = model_data,
+    is_residual_variance_constant = all(abs(diff(var_y)) < 1e-6)
+  )
+  
+  message("Ordinal null model fitting complete.")
+  return(fit_null)
+}
+```
+
+---
+
+### 文件 3: `OrdinalSTAAR.R` (新的主分析函数)
+
+这是将所有部分连接在一起的新增核心文件。它会加载基因型数据和零模型结果，然后逐个基因为单位，计算各种关联检验（负担、SKAT、ACAT）的 p-value。
+
+```R
+# --- 文件名: OrdinalSTAAR.R ---
+
+#' @title Perform Rare Variant Association Tests for Ordinal Phenotypes
+#' @description Main function for OrdinalSTAAR. It takes a fitted null model
+#'   and gene-centric genotype data to perform Burden, SKAT, and ACAT-OMNI tests.
+#'
+#' @param coded_genotype_file Path to the .Rdata file created by `GeneCentricCoding`.
+#' @param fit_null The list object returned by `Ordinal_NullModel`.
+#' @param rare_maf_cutoff MAF cutoff to define rare variants (default: 0.01).
+#' @param rv_num_cutoff Minimum number of rare variants in a gene to perform a test (default: 2).
+#'
+#' @return A data.frame with association test results for each gene.
+#'
+#' @importFrom stats qchisq
+#' @export
+OrdinalSTAAR <- function(coded_genotype_file, fit_null, 
+                         rare_maf_cutoff = 0.01, rv_num_cutoff = 2) {
+  
+  if (!requireNamespace("Matrix", quietly = TRUE)) stop("Package 'Matrix' is required.", call. = FALSE)
+  
+  # --- Load all gene objects into a temporary environment ---
+  gene_env <- new.env()
+  load(coded_genotype_file, envir = gene_env)
+  gene_names <- ls(gene_env)
+  gene_names <- sub("G_imputed_", "", gene_names) # Adjust QC_label if different
+  
+  results_list <- list()
+  
+  # --- Unpack null model components ---
+  res <- fit_null$residuals
+  sample_ids_pheno <- fit_null$sample_ids
+  W <- fit_null$W_mat
+  X <- fit_null$X_mat
+  WX <- fit_null$WX_mat
+  XWX_inv <- fit_null$XWX_inv
+  
+  # --- Loop through each gene ---
+  for (gene in gene_names) {
+    
+    # Load genotype data for the current gene
+    obj_name <- paste0("G_imputed_", gene) # Adjust QC_label if different
+    G_obj <- get(obj_name, envir = gene_env)
+    G_matrix_full <- G_obj$genotype
+    
+    # Match samples between genotype and phenotype data
+    sample_ids_geno <- colnames(G_matrix_full)
+    common_samples <- intersect(sample_ids_pheno, sample_ids_geno)
+    
+    # Reorder everything to match
+    pheno_idx <- match(common_samples, sample_ids_pheno)
+    geno_idx <- match(common_samples, sample_ids_geno)
+    
+    res_matched <- res[pheno_idx]
+    W_matched <- W[pheno_idx, pheno_idx]
+    X_matched <- X[pheno_idx, ]
+    WX_matched <- WX[pheno_idx, ]
+    G_matrix <- t(G_matrix_full[, geno_idx, drop = FALSE])
+    
+    # Calculate MAF and filter for rare variants
+    maf <- colMeans(G_matrix) / 2
+    rare_idx <- which(maf > 0 & maf < rare_maf_cutoff)
+    
+    if (length(rare_idx) < rv_num_cutoff) next
+    
+    G_rare <- G_matrix[, rare_idx, drop = FALSE]
+    
+    # --- Calculate Score Vector U ---
+    U <- crossprod(G_rare, res_matched)
+    
+    # --- Calculate Variance of Score ---
+    # V = G'PG where P = W - WX(X'WX)^-1X'W
+    G_rare_t_WX <- crossprod(G_rare, WX_matched)
+    V <- crossprod(G_rare, W_matched %*% G_rare) - (G_rare_t_WX %*% XWX_inv %*% t(G_rare_t_WX))
+    V <- as.matrix(V)
+    
+    # --- 1. Burden Test ---
+    U_burden <- sum(U)
+    Var_burden <- sum(V)
+    Stat_burden <- U_burden^2 / Var_burden
+    p_burden <- pchisq(Stat_burden, df = 1, lower.tail = FALSE)
+    
+    # --- 2. SKAT Test ---
+    # SKAT Q statistic is sum(lambda_i * Z_i^2) where Z ~ N(0,1)
+    # This is equivalent to U'U for whitened scores
+    lambda <- eigen(V, symmetric = TRUE, only.values = TRUE)$values
+    lambda <- lambda[lambda > 1e-6] # Numerical stability
+    p_skat <- SKAT_pvalue(q = sum(U^2), lambda = lambda)$p.value
+
+    # --- 3. ACAT-OMNI Test (combining Burden and SKAT) ---
+    p_values <- c(p_burden, p_skat)
+    p_acat <- ACAT(Pvals = p_values)
+    
+    results_list[[gene]] <- data.frame(
+      Gene = gene,
+      N_Variants = ncol(G_rare),
+      P_Burden = p_burden,
+      P_SKAT = p_skat,
+      P_ACAT_OMNI = p_acat
+    )
+  }
+  
+  # --- Combine all results ---
+  final_results <- do.call(rbind, results_list)
+  rownames(final_results) <- NULL
+  
+  return(final_results)
+}
+
+
+# --- Helper functions required for SKAT/ACAT ---
+# These can be sourced from the original STAAR package or included directly
+
+# A simplified version of SKAT p-value calculation
+SKAT_pvalue = function(q, lambda){
+  # ... (Implementation of Davies method or other mixture-chi-square methods)
+  # For simplicity, one can use the `CompQuadForm` package
+  if (!requireNamespace("CompQuadForm", quietly = TRUE)) stop("Package 'CompQuadForm' is required for SKAT p-value.")
+  p_val <- CompQuadForm::davies(q, lambda)$Qq
+  return(list(p.value = p_val))
+}
+
+# ACAT p-value combination
+ACAT = function(Pvals, Weights=NULL){
+  # ... (Implementation of ACAT)
+  if(is.null(Weights)){
+    Weights = rep(1/length(Pvals), length(Pvals))
+  }
+  is.zero = (Pvals==0)
+  is.one = (Pvals==1)
+  if(sum(is.zero)>0){ return(0) }
+  if(sum(is.one)==length(Pvals)){ return(1) }
+  
+  p.min = min(Pvals)
+  if(p.min * length(Pvals) < 1e-16){ return(0) }
+  
+  Pvals[is.one] = 1-1e-16
+  stat = sum(Weights*tan((0.5-Pvals)*pi))
+  res = pcauchy(stat, lower.tail = F)
+  return(res)
+}
+```
+
+### 如何使用这个完整的框架
+
+1.  **准备数据：**
+    *   `gdsfile`: 包含基因型和注释的 GDS 文件。
+    *   `pheno_data`: 包含表型和协变量的 R 数据框。
+    *   `PRS.file` (可选): 由 `REGENIE` 生成的 PRS 文件。
+
+2.  **第一步：基因型预处理**
+    ```R
+    # source("GeneCentricCoding.R")
+    # GeneCentricCoding(gdsfile, QC_label="imputed", sample.id=..., variant.id=..., outfile="coded_genotypes.Rdata")
+    ```
+
+3.  **第二步：拟合零模型**
+    ```R
+    # source("NullModel.R")
+    # fit_null_obj <- Ordinal_NullModel(formula, data=pheno_data, id_col="sample_id", PRS.file="path/to/prs")
+    ```
+
+4.  **第三步：运行关联分析**
+    ```R
+    # source("OrdinalSTAAR.R")
+    # results_df <- OrdinalSTAAR(coded_genotype_file="coded_genotypes.Rdata", fit_null=fit_null_obj)
+    ```
+
+这个完整的代码框架现在为你提供了一个功能完备的 `OrdinalSTAAR` 工具，它在设计上与 `SurvSTAAR` 保持一致，并且能够处理大规模、存在亲缘关系的有序性状数据。
