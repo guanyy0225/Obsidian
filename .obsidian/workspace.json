@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "OrdinalSTAAR.md",
+                "file": "SurvSTAAR.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "OrdinalSTAAR"
+              "title": "SurvSTAAR"
             }
           },
           {
@@ -286,9 +286,9 @@
   },
   "active": "e72e946655ab8961",
   "lastOpenFiles": [
+    "OrdinalSTAAR.md",
     "SurvSTAAR.md",
     "04_项目/组会/0826问题汇总.md",
-    "OrdinalSTAAR.md",
     "04_项目/组会/0908多分类与二分类的结果差异.md",
     "04_项目/组会/github代码.md",
     "05_学习/家教/2025全国一卷17题.md",
