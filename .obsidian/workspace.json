@@ -69,12 +69,40 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "04_项目/组会/0908多分类羽而分类的结果差异.md",
+                "file": "04_项目/组会/0826问题汇总.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0908多分类羽而分类的结果差异"
+              "title": "0826问题汇总"
+            }
+          },
+          {
+            "id": "71be5d4feee4d3f4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "SurvSTAAR.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "SurvSTAAR"
+            }
+          },
+          {
+            "id": "10b59c42df22cfd2",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "OrdinalSTAAR.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "OrdinalSTAAR"
             }
           },
           {
@@ -92,7 +120,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 6
       }
     ],
     "direction": "vertical"
@@ -149,8 +177,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 337.5,
-    "collapsed": true
+    "width": 337.5
   },
   "right": {
     "id": "1435d00f0d743758",
@@ -257,10 +284,13 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "27e24a72ca96c195",
+  "active": "10b59c42df22cfd2",
   "lastOpenFiles": [
-    "04_项目/组会/0828组会.md",
+    "SurvSTAAR.md",
+    "OrdinalSTAAR.md",
+    "04_项目/组会/0826问题汇总.md",
     "04_项目/组会/0908多分类羽而分类的结果差异.md",
+    "04_项目/组会/0828组会.md",
     "04_项目/azphwas/爬虫.md",
     "05_学习/家教/2025全国一卷17题.md",
     "04_项目/azphwas",
@@ -272,7 +302,6 @@
     "04_项目/组会/0802范德瓦尔登分数法.md",
     "04_项目/组会/0722证明潜在变量的可用性.md",
     "04_项目/组会/0619汇报.md",
-    "04_项目/组会/0826问题汇总.md",
     "04_项目/组会/0725说明其他方法中也用到了潜在变量.md",
     "04_项目/组会/附件/Pasted image 20250828102101.png",
     "04_项目/组会/附件",
@@ -295,8 +324,6 @@
     "04_项目/组会/0826GENESIS.md",
     "Excalidraw/高数.md",
     "04_项目/多分类/二、null适配STAAR框架.md",
-    "04_项目/多分类/5、写一个nullmodel_list.md",
-    "04_项目/多分类/三   Indiv_Score_Test_Region以及单个基因的关联分析.md",
     "未命名.canvas",
     "Pasted image 20250722095845.png"
   ]
