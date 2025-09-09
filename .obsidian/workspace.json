@@ -69,12 +69,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "REGENIE.md",
+                "file": "04_项目/组会/0908多分类与二分类的结果差异.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "REGENIE"
+              "title": "0908多分类与二分类的结果差异"
             }
           },
           {
@@ -180,7 +180,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "非比例优势",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -201,12 +201,12 @@
               "title": "书签"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
-    "width": 337.5,
-    "collapsed": true
+    "width": 337.5
   },
   "right": {
     "id": "1435d00f0d743758",
@@ -315,8 +315,8 @@
   },
   "active": "a7a6e69bdb844de8",
   "lastOpenFiles": [
-    "SurvSTAAR函数解释.md",
     "REGENIE.md",
+    "SurvSTAAR函数解释.md",
     "SurvSTAAR.md",
     "SurvSTAAR函数解释",
     "OrdinalSTAAR.md",
