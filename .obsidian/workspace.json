@@ -97,12 +97,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "进度.md",
+                "file": "0909.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "进度"
+              "title": "0909"
             }
           },
           {
@@ -233,7 +233,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 337.5
+    "width": 337.5,
+    "collapsed": true
   },
   "right": {
     "id": "1435d00f0d743758",
@@ -342,8 +343,8 @@
   },
   "active": "0599b6454a9ae3cd",
   "lastOpenFiles": [
-    "0909.md",
     "进度.md",
+    "0909.md",
     "04_项目/组会/0908多分类与二分类的结果差异.md",
     "REGENIE.md",
     "SurvSTAAR函数解释.md",
