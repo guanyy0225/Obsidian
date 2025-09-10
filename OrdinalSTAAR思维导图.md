@@ -96,9 +96,13 @@ WX_mat <- t(X_t_W)
 1. **用功能注释来识别出哪些是pLoF变异**
 2. **为后续的关联检验准备一个功能注释权重矩阵**
 3. **质量控制genoFlipRV**
-4. 关联的你
+4. **关联分析OrdinalSTAAR**
 
 ## OrdinalSTAAR
+
+
+
+
 
 ## ACAT
 
