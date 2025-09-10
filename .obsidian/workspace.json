@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -215,15 +215,17 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "df45932b0d4e4842",
+  "active": "0599b6454a9ae3cd",
   "lastOpenFiles": [
+    "附件/Pasted image 20250910205817.png",
+    "附件",
+    "04_项目/组会/0805潜在变量残差法.md",
     "0911汇报.md",
     "04_项目/azphwas/爬虫.md",
     "04_项目/组会/0904OrdinalSTAAR.md",
     "0909.md",
     "04_项目/组会/0827潜在变量法实际遇到的问题.md",
     "04_项目/组会/0902SurvSTAAR学习.md",
-    "04_项目/组会/0805潜在变量残差法.md",
     "04_项目/组会/0828汇报：STAAR扩展“有序多分类”表型---潜在残差的方法介绍.md",
     "04_项目/组会/0826GENESIS包介绍及使用.md",
     "OrdinalSTAAR思维导图.md",
@@ -248,13 +250,11 @@
     "04_项目/组会/0725说明其他方法中也用到了潜在变量.md",
     "04_项目/组会/附件",
     "07_草稿箱/杂.md",
-    "04_项目/未命名 1.md",
     "05_学习/家教",
     "05_学习",
     "06_生活",
     "04_项目",
     "03_知识库",
-    "02_日记",
     "未命名.canvas",
     "Pasted image 20250722095845.png"
   ]
