@@ -79,6 +79,63 @@ WX_mat <- t(X_t_W)
 *   **解释**: 预先计算并存储 `WX`，使得在后续上千次检验中计算 `G'WX` 这一项时，只需进行快速的向量-矩阵乘法，而无需重复计算 `W %*% X`。
 
 ---
+
+
+### 模型结果
+
+formula: 
+alcohol_intake_frequency ~ sex + age + age2 + PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC7 + PC8 + PC9 + PC10 + prs_pc1 + prs_pc2 + prs_pc3 + prs_pc4 + prs_pc5
+data:    use_data
+
+ link   threshold nobs   logLik     AIC        niter
+ probit flexible  484058 -801410.93 1602867.86 6(0) 
+ max.grad cond.H 
+ 7.92e-10 1.1e+03
+
+Coefficients:
+          Estimate Std. Error  z value Pr(>|z|)    
+sex.L    0.2686195  0.0021559  124.595  < 2e-16 ***
+age      0.6438425  0.0217648   29.582  < 2e-16 ***
+age2    -0.6300330  0.0217702  -28.940  < 2e-16 ***
+PC1     -0.1778059  0.0015368 -115.696  < 2e-16 ***
+PC2     -0.1381225  0.0015753  -87.679  < 2e-16 ***
+PC3     -0.0563768  0.0015539  -36.281  < 2e-16 ***
+PC4      0.0148830  0.0015473    9.619  < 2e-16 ***
+PC5      0.0140339  0.0015039    9.332  < 2e-16 ***
+PC6      0.0010880  0.0015008    0.725  0.46849    
+PC7     -0.0372979  0.0015213  -24.518  < 2e-16 ***
+PC8     -0.0010459  0.0015031   -0.696  0.48653    
+PC9      0.0144231  0.0015079    9.565  < 2e-16 ***
+PC10    -0.0085986  0.0015032   -5.720 1.06e-08 ***
+prs_pc1 -0.1068618  0.0009198 -116.174  < 2e-16 ***
+prs_pc2 -0.0223955  0.0014887  -15.044  < 2e-16 ***
+prs_pc3  0.0058576  0.0018949    3.091  0.00199 ** 
+prs_pc4  0.0142670  0.0024712    5.773 7.77e-09 ***
+prs_pc5 -0.0008760  0.0030314   -0.289  0.77260    
+
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Threshold coefficients:
+                                                   Estimate
+Never|Special occasions only                      -1.509306
+Special occasions only|One to three times a month -0.922922
+One to three times a month|Once or twice a week   -0.542902
+Once or twice a week|Three or four times a week    0.166849
+Three or four times a week|Daily or almost daily   0.862304
+                                                  Std. Error
+Never|Special occasions only                        0.002766
+Special occasions only|One to three times a month   0.002149
+One to three times a month|Once or twice a week     0.001945
+Once or twice a week|Three or four times a week     0.001848
+Three or four times a week|Daily or almost daily    0.002091
+                                                  z value
+Never|Special occasions only                      -545.70
+Special occasions only|One to three times a month -429.39
+One to three times a month|Once or twice a week   -279.11
+Once or twice a week|Three or four times a week     90.28
+Three or four times a week|Daily or almost daily   412.32
+
 ### 总结表格
 
 | 变量名 | R 代码 | 数学表达式 | 运算维度 | 输出维度 | 描述 |
