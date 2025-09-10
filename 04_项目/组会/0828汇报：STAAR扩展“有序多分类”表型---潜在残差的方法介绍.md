@@ -1,19 +1,21 @@
 
-### Null Model Workflow
+### Null Model Workflow（以alcohol_intake_frequency为例）
 
 1.  **数据准备**:
-    *   加载并合并了表型、协变量和基因组主成分（PCs）数据。
-    *   将有序表型转换为多个二分类表型。
+    *   加载并合并了pheno、covariates和PCs，得到fullDat。
+    *   将有序表型转换为五个二分类表型（注意顺序）。
 
 2.  **PRS计算 (借助REGENIE)**:
     *   使用`REGENIE`工具对五个二分类表型进行全基因组回归，分别生成了五组PRS。
+    * 注：REGENIE支持同时多个二分类
 
-3.  **PCA（ji**:
+3.  **PCA正交化（解决多重共线性）**:
     *   合并所有二分类PRS，并使用主成分分析将它们成五个关键的PRS主成分。
 
-4.  **最终模型拟合**:
+4.  **模型拟合**:
     *   使用 `OrdinalSTAAR` 包中的 `NullModel` 函数，拟合了一个**有序回归模型**。
     *   这个模型以**有序饮酒频率**为因变量，同时校正了年龄、性别、基因组PCs这些基础协变量以及**新计算出的PRS-PC。
+    * 
 
 
 
