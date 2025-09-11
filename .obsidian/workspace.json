@@ -55,26 +55,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "0911不显著的原因.md",
+                "file": "0911下午.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0911不显著的原因"
-            }
-          },
-          {
-            "id": "be297062a5c2c72f",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "代码结果.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "代码结果"
+              "title": "0911下午"
             }
           },
           {
@@ -92,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -257,12 +243,13 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "be297062a5c2c72f",
+  "active": "f928fb4a9c2f4114",
   "lastOpenFiles": [
-    "0911不显著的原因.md",
-    "07_草稿箱/杂.md",
+    "附件/Pasted image 20250911163002.png",
     "04_项目/组会/0911汇报：STAAR扩展“有序多分类”表型.md",
+    "0911下午.md",
     "代码结果.md",
+    "07_草稿箱/杂.md",
     "04_项目/组会/0805潜在变量残差法.md",
     "0911组会记录.md",
     "04_项目/组会/0827潜在变量法实际遇到的问题.md",
@@ -292,7 +279,6 @@
     "04_项目/组会/附件/Pasted image 20250828102101.png",
     "进度.md",
     "04_项目/组会/0710github代码.md",
-    "0910 OrdinalSTAAR代码解读.md",
     "SurvSTAAR函数解释",
     "04_项目/azphwas",
     "05_学习/家教/附件/Pasted image 20250829215132.png",
