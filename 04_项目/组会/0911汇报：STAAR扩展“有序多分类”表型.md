@@ -187,7 +187,7 @@
 2.  10岁时相对身高 (Comparative height size at age 10)
 3.  10岁时相对体型 (Comparative body size at age 10)
 4.  睡眠类型/时型 (Morning/evening person chronotype)
-5.  认知症状严重程度 (Cognitive symptoms severity)
+5.  ==认知症状严重程度 (Cognitive symptoms severity)==
 
 *   **总共发现了54个显著的基因-表型关联** (p < 2.5 x 10⁻⁶)。
 *   **主要发现亮点 (Table 1 & Figure 3)：**
