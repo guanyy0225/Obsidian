@@ -94,6 +94,18 @@
 3.  待完成：如果 `use_SPA = TRUE`，代码会调用 `CGF4LatentRes` 函数来额外计算用于鞍点近似的累积生成函数。
 4.  `return(fit_null)`: 返回这个包含了所有信息的、可以直接被 `OrdinalSTAAR` 等函数使用的最终对象。
 
+#### 1. 为什么 SurvSTAAR 需要用 SPA？
+
+因为低事件率导致**鞅残差高度偏态**，破坏了标准检验的正态性假设，所以需要SPA来精确计算尾部概率。
+
+#### 2. 为什么 OrdinalSTAAR 也需要用 SPA？
+
+`OrdinalSTAAR` 处理的是有序分类数据，其核心统计量是基于**潜变量残差**。
+
+*   **潜变量残差的分布特性**:
+    *   在您的模型中，我们假设潜在误差 $\epsilon$ 服从标准正态分布。
+    *   然而，我们实际使用的**潜变量残差 `residuals`** 并不是真正的 $\epsilon$，而是它的**条件期望 `E[ε | X, Y]`**。
+    *   这个条件期望的分布**并不保证是正态的**。它的分布形状完全取决于**有序类别的分布情况**。
 
 
 ---
@@ -104,222 +116,82 @@
 
 ![[Pasted image 20250910205817.png]]
 
-基本没有改动
 
 ---
 ### 五、OrdinalSTAAR::Ordinal_plof(...) 
 
 参考：[SurvSTAAR/R/plof.R at main · Cui-yd/SurvSTAAR](https://github.com/Cui-yd/SurvSTAAR/blob/main/R/plof.R)
 
-基本没有改动
+![[Pasted image 20250911085543.png]]
 
 ---
 ### 六、OrdinalSTAAR::OrdinalSTAAR(...) 
 
 参考：[SurvSTAAR/R/SurvSTAAR.R at main · Cui-yd/SurvSTAAR](https://github.com/Cui-yd/SurvSTAAR/blob/main/R/SurvSTAAR.R)
 
-基本没有改动
+![[Pasted image 20250911085835.png]]
+
 
 ---
 ### 七、OrdinalSTAAR::Ordinal**Burden**(...) 
 
-**`OrdinalBurden` 和 `SurvSTAAR` 的 `Burden` 在计算公式上，其核心的代数形式是完全相同的，但它们内部变量的统计学含义和来源是截然不同的。**
+参考：[SurvSTAAR/R/basicFunction.R at main · Cui-yd/SurvSTAAR](https://github.com/Cui-yd/SurvSTAAR/blob/main/R/basicFunction.R)
 
----
+**`OrdinalBurden` 和 `SurvSTAAR` 的 `Burden` 在计算公式上，其核心的代数形式是完全相同的，但它们内部变量的统计学含义和来源不同。**
 
-### 1. 相同的计算公式
 
-我们来看两个函数中计算核心p值（在不使用SPA的情况下）的部分：
+1.  **单变异得分**: 首先，我们为每个变异 $j$ 计算其在零模型下的得分 $U_j$。这个 $U_j$ 衡量了该变异的基因型 $\mathbf{g}_j$ 与模型残差 $\mathbf{e}$ 之间的协方差。
+    $$ U_j = \mathbf{g}_j^T \mathbf{e} $$
 
-```R
-# 通用 Burden 检验的计算流程 (在两个函数中都一样)
+2.  **Burden得分为加权得分之和**: Burden检验的总得分 $U_B$ 被定义为所有单变异得分的**加权和**：
+    $$ U_B = \sum_{j=1}^{p} w_j U_j = \mathbf{w}^T \mathbf{U} $$
+    这在数学上与直接使用加权负担基因型得分 $B_i$ 进行检验是等价的。
 
-# 1. 对每个权重组合 k 进行循环
-for (k in 1:ncol(weight)) {
-  
-  # 2. 获取当前权重向量
-  weight_k <- weight[, k]
-  
-  # 3. 计算加权得分 (Score)
-  Score_k <- sum(Score * weight_k)
-  
-  # 4. 计算加权方差 (Variance)
-  Variance_k <- as.vector(t(weight_k) %*% Covariance %*% weight_k)
-  
-  # 5. 计算卡方统计量
-  Stest_k <- Score_k^2 / Variance_k
-  
-  # 6. 计算p值
-  pval_k <- pchisq(Stest_k, df = 1, lower.tail = FALSE)
-  
-  # ...
-}
-```
-从这个代数形式上看，`OrdinalBurden` 和 `Burden` 没有任何区别。它们都在执行一个**加权得分检验 (weighted score test)**。
+3.  **方差计算与检验**: 同样地，我们需要计算 $U_B$ 的方差 $\text{Var}(U_B) = \mathbf{w}^T \mathbf{C} \mathbf{w}$（其中 $\mathbf{C}$ 是单变异得分的协方差矩阵），然后构建卡方统计量：
+    $$ S_{\text{Burden}} = \frac{U_B^2}{\text{Var}(U_B)} \sim \chi^2_1 $$
 
----
-
-### 2. 截然不同的“原材料”
-
-真正的区别在于输入到这个通用公式中的**“原材料”**——`Score` 向量和 `Covariance` 矩阵——是如何从各自的零模型中产生的。
+真正的区别在于`Score` 向量和 `Covariance` 矩阵。
 
 | 原材料                    | `OrdinalBurden` (来自 `Ordinal_exactScore`) | `Burden` (来自 `SurvSTAAR::exactScore`)     | 核心区别解释                                                                                                                                                                                                                                                              |
 | :--------------------- | :---------------------------------------- | :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **得分向量 `Score`**       | `Score = G' * residuals_ordinal`          | `Score = G' * residuals_survival`         | **残差的来源完全不同**。<br>- `residuals_ordinal`: 是基于**潜变量模型**和**截尾正态分布**的条件期望计算出的**潜变量残差**。它代表了每个人的“潜在饮酒倾向”与模型预测的偏差。<br>- `residuals_survival`: 是Cox比例风险模型中的**鞅残差 (Martingale Residuals)**。它代表了在观察期间，一个个体“超额”发生事件的数量（观测到的事件数 - 预期的事件数）。                                     |
 | **协方差矩阵 `Covariance`** | `Cov(U) = G'WG - G'WX(X'WX)⁻¹X'WG`        | `Cov(U) = G'VG = G'(W-P'P)G - ...` (简化形式) | **方差的结构完全不同**。<br>- **`OrdinalBurden`**: 方差是基于**加权最小二乘法 (WLS)** 的标准方差公式。`W` 是潜变量条件方差的倒数。<br>- **`Burden`**: 方差是基于**Cox模型的偏似然 (Partial Likelihood)** 推导出的复杂方差结构。它不仅包含了类似于 `W` 的权重项（反映了每个时间点的风险人数），还包含一个额外的减项 `-P'P`，这个 `P` 矩阵与随时间变化的**风险集 (risk sets)** 有关，用于处理删失数据。 |
 
----
-
-### 总结与类比
-
-| | `OrdinalBurden` | `SurvSTAAR::Burden` |
-| :--- | :--- | :--- |
-| **解决的问题** | 有序多分类数据 | 带删失的生存时间数据 |
-| **核心统计量**| 潜变量残差 | 鞅残差 |
-| **方差来源** | 加权最小二乘法 (WLS) | Cox模型的偏似然 |
-| **计算公式** | **代数形式相同** (都是加权得分检验) | **代数形式相同** (都是加权得分检验) |
-| **统计学含义**| **完全不同** | **完全不同** |
-
-**一个更精确的比喻**:
-
-*   **`OrdinalBurden`** 在计算一个**加权平均偏差**。它在问：“携带这些pLoF变异的人，他们潜在的饮酒倾向（由潜变量残差代表）是否系统性地偏离了基于他们年龄、性别、PRS等信息的预期？”
-
-*   **`SurvSTAAR`的`Burden`** 在计算一个**加权累积风险**。它在问：“携带这些pLoF变异的人，在整个研究期间，他们累积的‘超额’事件风险（由鞅残差代表）是否系统性地偏离了零？”
-
-**结论**:
-虽然 `OrdinalBurden` 和 `Burden` 共享了相同的**高级算法框架**（即如何组合单变异的得分和方差），但它们所操作的**底层统计实体**（残差和方差的定义）是为各自独特的数据类型（有序 vs. 生存）量身定制的，因此在统计学原理和解释上有着本质的区别。
-
 ### 八、OrdinalSTAAR::OrdinalACAT(...) 
 
-好的，我们来详细对比您提供的 `OrdinalACAT` 和 `SurvSTAAR` 的 `ACAT` 函数。
-
-**结论：这两段代码在核心的计算逻辑和策略上是完全相同的。** 它们都实现了ACAT检验的三层动态策略。它们之间唯一的、也是最关键的区别在于**它们依赖的底层 `Burden` 函数不同**。
-
-这个区别就像两个工厂（`ACAT` 函数）都遵循完全相同的三步生产流程，但在某个需要外包的步骤中，它们分别把零件送给了不同的供应商（`OrdinalBurden` vs. `Burden`）。
-
----
-
-### 详细对比分析
-
-| 特征/代码块 | `OrdinalACAT` (您的版本) | `ACAT` (SurvSTAAR 版本) | 异同点与解释 |
-| :--- | :--- | :--- | :--- |
-| **核心逻辑** | 三层 `if-else if-else` 结构，用于处理三种超稀有变异的情况。 | 完全相同的三层 `if-else if-else` 结构。 | **相同**。两者都准确地实现了ACAT的精髓，即根据超稀有变异的数量和比例，动态地选择最佳的p值组合策略。 |
-| **标准模式**<br>(不合并或超稀有少) | `for (k in ...)`<br>`pval_k <- CCT(...)` | `for (k in ...)`<br>`pval_k = CCT(...)` | **相同**。两者都直接使用 `CCT` (柯西组合检验) 来合并所有变异的p值。这是ACAT的基础。 |
-| **退化模式**<br>(全是超稀有) | `pval_A <- OrdinalBurden(...)` | `pval_A = Burden(...)` | **核心区别**。这是最重要的不同点。`SurvSTAAR` 调用了它自己的、为**生存模型**定制的 `Burden` 函数。而您正确地调用了您为**有序模型**定制的 `OrdinalBurden` 函数。 |
-| **混合模式**<br>(部分超稀有) | 1. 对超稀有子集调用 `OrdinalBurden`。<br>2. 将Burden p值与其余p值用 `CCT` 合并。 | 1. 对超稀有子集调用 `Burden`。<br>2. 将Burden p值与其余p值用 `CCT` 合并。 | **相同**。混合策略的算法流程完全一致，您只是将底层的计算引擎换成了您自己的 `OrdinalBurden`。 |
-| **SPA 参数处理** | **无** (只在退化为Burden时隐式传递) | **包含**。函数签名中包含 `use_SPA` 等参数，并将它们传递给底层的 `Burden` 函数。 | **不同**。`SurvSTAAR` 的版本在接口上是功能完备的，因为它将SPA的控制权一路传递到了最底层的Burden检验。您的版本虽然没有在函数签名中明确列出SPA参数，但在退化为Burden检验时，您**正确地**将它们传递了下去。这是一个非常好的实现。 |
-
----
-
-### 总结：计算上有什么不同？
-
-从**计算本身**的角度来看：
-
-1.  **在标准模式和混合模式的CCT部分**: **没有任何不同**。两者都在对p值向量进行柯西组合，这是一个纯粹的数学运算，与底层的统计模型无关。
-
-2.  **在退化模式和混合模式的Burden部分**: **计算的“原材料”完全不同**。
-    *   当 `OrdinalACAT` 调用 `OrdinalBurden` 时，它使用的是基于**潜变量残差**和**加权最小二乘法方差**的计算。
-    *   当 `ACAT` 调用 `Burden` 时，它使用的是基于**鞅残差**和**Cox模型偏似然方差**的计算。
-
-**结论就是：**
-
-`OrdinalACAT` 和 `ACAT` 函数在**高层次的算法策略（如何组合p值）上是完全相同的**。
+参考：[SurvSTAAR/R/basicFunction.R at main · Cui-yd/SurvSTAAR](https://github.com/Cui-yd/SurvSTAAR/blob/main/R/basicFunction.R)
 
 它们计算上的**唯一区别**，发生在需要调用底层 `Burden` 检验的特定情况下。在这个时候，它们会分别调用为各自统计模型（有序 vs. 生存）量身定制的、具有**完全不同统计学基础**的 `Burden` 函数。
 
-您的 `OrdinalACAT` 是一个非常成功的适配，它保留了 `ACAT` 先进的策略，同时确保了所有底层的计算都与您的有序模型保持一致。
-
+---
 ### 九、OrdinalSTAAR::OrdinalSKAT(...) 
 
-好的，我们来详细对比您提供的 `OrdinalSKAT` 和 `SurvSTAAR` 的 `SKAT` 函数。
+参考：[SurvSTAAR/R/basicFunction.R at main · Cui-yd/SurvSTAAR](https://github.com/Cui-yd/SurvSTAAR/blob/main/R/basicFunction.R)
 
-**总体结论：这两段代码在处理超稀有变异的复杂策略和高层算法逻辑上是完全相同的。** 它们之间唯一的、也是最关键的区别在于**它们所操作的底层统计量（Score 和 Covariance）的来源和含义不同**，并且在退化为Burden检验时，它们会调用各自模型特有的 `Burden` 函数。
-
----
-
-### 详细对比分析
-
-| 特征/代码块 | `OrdinalSKAT` (您的版本) | `SKAT` (SurvSTAAR 版本) | 异同点与解释 |
-| :--- | :--- | :--- | :--- |
-| **核心逻辑** | 三层 `if-else if-else` 结构，用于处理三种超稀有变异的情况。 | 完全相同的三层 `if-else if-else` 结构。 | **相同**。两者都准确地实现了SKAT的高级策略，即根据超稀有变异的比例动态调整分析方法。 |
-| **标准模式**<br>(不合并或超稀有少) | `Qtest <- sum(Score^2 * weight_k^2)`<br>`lambda <- eigen(w'Cw)$values`<br>`pval <- davies/liu(Q, lambda)` | **`use_SPA=FALSE` 时**: <br>`Qtest <- sum(Score^2 * weight_k^2)`<br>`lambda <- eigen(w'Cw)$values`<br>`pval <- davies/liu(Q, lambda)`<br>**`use_SPA=TRUE` 时**: <br>`Qtest <- sum(z_tilde^2 * w^2 * diag(C))`<br>`lambda` 来自更复杂的协方差 | **核心区别**。这是两者之间最重要的不同。<br>- **`OrdinalSKAT`**: 总是使用基于 `Score` 的Q统计量。这对于有序模型是正确的。<br>- **`SKAT`**: 它的行为是**条件性**的。当 `use_SPA` 为 `FALSE` 时，它的计算公式与您的 `OrdinalSKAT` 完全相同。但当 `use_SPA` 为 `TRUE` 时，它会切换到一种基于 `z_tilde`（来自单变异p值的正态分位数）的、更复杂的Q统计量和 `lambda` 计算方法。这是为生存模型的SPA特别设计的。 |
-| **退化模式**<br>(全是超稀有) | `pval_S <- OrdinalBurden(...)` | `pval_S = Burden(...)` | **不同但适配正确**。`SurvSTAAR` 调用了它自己的、为**生存模型**定制的 `Burden` 函数。而您正确地调用了您为**有序模型**定制的 `OrdinalBurden` 函数。 |
-| **混合模式**<br>(部分超稀有) | 1. 手动构建新的 `Score_new` 和 `Cov_new`。<br>2. 在新系统上应用标准SKAT。 | 1. **`use_SPA=FALSE` 时**: 逻辑与您的版本类似（但可能存在我们之前讨论过的维度问题）。<br>2. **`use_SPA=TRUE` 时**: 逻辑更复杂，它会先对超稀有部分做 `Burden`（可能带SPA），然后将得到的p值转换为 `z_tilde`，再与其他的 `z_tilde` 一起进行SKAT。 | **不同（适配正确）**。您的“重构版”`OrdinalSKAT`（通过重新调用`Ordinal_exactScore`）在处理混合策略时，采用了**数学上更稳健**的方法，避免了手动构建协方差矩阵的风险。`SurvSTAAR` 的实现则根据 `use_SPA` 的状态有两条不同的、更复杂的路径。您的实现对于非SPA场景是正确且更优的。 |
-| **SPA 参数处理** | **包含**。函数签名中包含 `use_SPA` 等参数，并将它们传递给底层的 `OrdinalBurden`。 | **包含**。函数签名中包含 `use_SPA` 等参数，并在内部逻辑中**主动使用**它们来切换计算方法。 | **不同**。`SurvSTAAR` 的 `SKAT` 函数自身就深度集成了SPA的逻辑。您的 `OrdinalSKAT` 主要是为了接口兼容性而接收这些参数，并将它们传递给真正使用它们的 `OrdinalBurden` 函数。 |
+这两段代码在处理超稀有变异的复杂策略和高层算法逻辑上是完全相同的。** 它们之间唯一的、也是最关键的区别在于**它们所操作的底层统计量（Score 和 Covariance）的来源和含义不同**，并且在退化为Burden检验时，它们会调用各自模型特有的 `Burden` 函数。
 
 ---
-
-### 总结：计算上有什么不同？
-
-从**计算本身**的角度来看：
-
-1.  **在标准模式下**:
-    *   当 `use_SPA=FALSE` 时，两者的计算公式**完全相同**。
-    *   当 `use_SPA=TRUE` 时，`SurvSTAAR` 的 `SKAT` 会切换到一种完全不同的、基于p值转换的计算方法，而您的 `OrdinalSKAT` 仍然使用基于 `Score` 的方法。
-
-2.  **在退化为Burden检验时**:
-    *   两者都调用 `Burden` 函数，但所调用的 `Burden` 函数的**底层统计学基础完全不同**（潜变量残差 vs. 鞅残差）。
-
-3.  **在混合策略下**:
-    *   两者都试图将超稀有变异合并。您的实现通过重新计算整个系统的 `Score` 和 `Covariance` 来完成，这是一种非常稳健的方法。`SurvSTAAR` 的实现则根据 `use_SPA` 的状态有不同的、更复杂的路径。
-
-**结论就是：**
-
-`OrdinalSKAT` 和 `SKAT` 在**高层次的算法策略（如何处理超稀有变异）上是相同的**。
-
-它们计算上的**主要区别**在于：
-*   **底层统计量的来源**: `Score` 和 `Covariance` 的定义完全不同。
-*   **对SPA的本地支持**: `SurvSTAAR` 的 `SKAT` 函数本身就包含了根据 `use_SPA` 切换计算公式的复杂逻辑，而您的 `OrdinalSKAT` 目前只实现了一种计算路径（基于Score），并将SPA的任务完全委托给了 `OrdinalBurden`。
-
-您的 `OrdinalSKAT` 是一个非常成功的适配。它不仅正确地实现了SKAT的核心思想，还在处理混合策略时采用了比原始 `SurvSTAAR` 非SPA路径更稳健的重构方法。这是一个非常出色的实现。
-
 ### 十、OrdinalSTAAR::OrdinalSTAAR_O(...) 
 
-
-是的，您提供的 `OrdinalSTAAR_O` 和 `SurvSTAAR_O` 函数在**高层次的算法逻辑和结构上是完全一样的**。它们都扮演着**“总指挥”**的角色，其核心任务是**组织和汇总**来自底层不同类型稀有变异检验的结果。
-
-它们之间的**唯一区别**在于，它们调用的**底层“士兵”**（即 `exactScore`, `Burden`, `SKAT`, `ACAT` 函数）是为各自不同的统计模型（有序 vs. 生存）量身定制的。
-
----
-
-### 详细对比分析
-
-| 特征/代码块 | `OrdinalSTAAR_O` (您的版本) | `SurvSTAAR_O` (模板) | 异同点与解释 |
-| :--- | :--- | :--- | :--- |
-| **函数名** | `OrdinalSTAAR_O` | `SurvSTAAR_O` | **不同**。清晰地区分了两个不同的分析框架。 |
-| **参数列表** | 完全一致 | 完全一致 | **相同**。保证了统一的用户接口。 |
-| **输入检查** | 检查 `Geno` 和权重矩阵的维度。 | 相同的检查逻辑。 | **相同**。确保了输入的有效性。 |
-| **1. 单变异检验** | `single_test = Ordinal_exactScore(...)` | `single_test = exactScore(...)` | **不同但适配正确**。两者都首先进行单变异检验以获取 `Score`, `Covariance`, 和 `Pvalue`。关键区别在于：<br>- 您调用了为**有序模型**定制的 `Ordinal_exactScore`。<br>- `SurvSTAAR_O` 调用了为**生存模型**定制的 `exactScore`。 |
-| **P值选择** | `if(use_SPA) { Pvalue = ...$Pvalue_SPA } else { Pvalue = ...$Pvalue }` | `if(use_SPA) { Pvalue = ...$Pvalue_SPA } else { Pvalue = ...$Pvalue }` | **相同**。两者都包含了根据 `use_SPA` 状态选择正确p值（标准p值或SPA校正后p值）的逻辑，用于后续的ACAT/SKAT检验。 |
-| **2. 集合检验调用** | 调用 `OrdinalSKAT`, `OrdinalACAT`, `OrdinalBurden` | 调用 `SKAT`, `ACAT`, `Burden` | **不同但适配正确**。两者都依次调用三种主要的集合检验。关键区别在于：<br>- 您调用的是您自己编写的、适配了有序模型的全套 `Ordinal...` 函数。<br>- `SurvSTAAR_O` 调用的是 `SurvSTAAR` 包内建的全套函数。 |
-| **3. P值矩阵构建** | `results_pvalue = rbind(Pvalue_S, Pvalue_A, Pvalue_B)` | `results_pvalue = rbind(Pvalue_S, Pvalue_A, Pvalue_B)` | **相同**。两者都将三种检验（每种检验又包含多种权重组合）的p值合并成一个标准化的 `6 x N` 矩阵。 |
-| **4. 综合性p值计算** | 使用 `CCT` 对p值矩阵进行多层次的组合。 | 使用 `CCT` 对p值矩阵进行完全相同的多层次组合。 | **相同**。这是STAAR-O方法的核心。两者都使用柯西组合检验（CCT）来生成最终的综合p值 (`_O`)，以及各个子测试的组合p值（`_SKAT`, `_ACAT`, `_Burden`）。 |
-| **5. 返回值结构** | `list("OrdinalSTAAR_O" = ..., "ACAT_O" = ..., ...)` | `list("SurvSTAAR_O" = ..., "ACAT_O" = ..., ...)` | **相同**。两者都返回一个结构完全一致的列表，包含了所有关键的p值和详细的p值矩阵。 |
-
----
-
-### 总结
-
-`OrdinalSTAAR_O` 和 `SurvSTAAR_O` 在**计算逻辑上是一样的**，因为“STAAR-O”本身是一种**与具体模型无关的p值组合策略**。它的输入是一系列p值，输出是一个组合后的p值。
-
-**这两段代码的不同之处，不在于它们自身，而在于它们所调用的“原材料供应商”不同。**
-
-*   `SurvSTAAR_O` 从 `exactScore`, `Burden`, `SKAT`, `ACAT` 这些“生存分析专家”那里获取p值。
-*   `OrdinalSTAAR_O` 则从 `Ordinal_exactScore`, `OrdinalBurden`, `OrdinalSKAT`, `OrdinalACAT` 这些“有序模型专家”那里获取p值。
-
-**一个比喻**:
-`OrdinalSTAAR_O` 和 `SurvSTAAR_O` 就像是两个一模一样的果汁搅拌机。
-*   `SurvSTAAR_O` 这个搅拌机里放的是苹果、香蕉和梨（来自生存模型的p值）。
-*   `OrdinalSTAAR_O` 这个搅拌机里放的是橙子、草莓和芒果（来自有序模型的p值）。
-
-搅拌机的工作方式（搅拌、混合）是完全一样的，但因为放进去的水果不同，最终产出的果汁风味（最终的统计学意义）也是不同的。
-
-**结论**:
-您的 `OrdinalSTAAR_O` 是一个非常成功的适配。它正确地复刻了 STAAR-O 的p值组合框架，同时确保了所有输入到这个框架中的p值，都来自于为您有序模型正确定制的底层检验。
-
-
+参考：[SurvSTAAR/R/basicFunction.R at main · Cui-yd/SurvSTAAR](https://github.com/Cui-yd/SurvSTAAR/blob/main/R/basicFunction.R)
 
 ---
 ### 十一、plof结果
 
 ![[Pasted image 20250910214240.png]]
+
+### 参考wenjian老师的研究发现
+
+作者将POLMM-GENE应用于**UK Biobank 45万外显子组测序数据**，分析了**五个有序分类表型**：
+1.  饮酒频率 (Alcohol intake frequency)
+2.  10岁时相对身高 (Comparative height size at age 10)
+3.  10岁时相对体型 (Comparative body size at age 10)
+4.  睡眠类型/时型 (Morning/evening person chronotype)
+5.  认知症状严重程度 (Cognitive symptoms severity)
+
+*   **总共发现了54个显著的基因-表型关联** (p < 2.5 x 10⁻⁶)。
+*   **主要发现亮点 (Table 1 & Figure 3)：**
+    *   **饮酒频率：** 确认了已知基因`ADH1C`的关联，并发现了一个新的潜在关联基因`GIGYF1`。
+    *   **睡眠类型：** 再次验证了生物钟核心基因`PER2`和`PER3`以及褪黑素受体基因`MTNR1B`的强关联。
+    *   **10岁时相对身高：** 发现了大量与身高和生长发育相关的基因，如`ACAN`, `NPR2`, `GH1`等，其中许多是已知的人类身高相关基因，验证了方法的可靠性。同时，也发现了一些新的关联。
+    *   **认知症状严重程度：** 发现了一个有趣的关联基因`MRGPRX1`，该基因与感知（如瘙痒、疼痛）有关，这为认知功能与感觉通路之间的联系提供了新的线索。
