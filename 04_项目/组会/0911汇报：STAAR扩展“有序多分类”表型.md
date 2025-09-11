@@ -37,10 +37,11 @@
 #### 第2步: 使用 REGENIE 计算个体水平预测值 (PRS)
 
 1.  **运行 REGENIE (Step 1)**:
-    *   在这一步中，`REGENIE` 会利用**全基因组**的常见变异信息（来自 `--bed` 文件指定的PLINK格式数据），对**每一个**二分类饮酒表型分别构建一个复杂的全基因组回归模型。
+    *   在这一步中，`REGENIE` 会利用**全基因组**的常见变异信息，对**每一个**二分类饮酒表型分别构建一个复杂的全基因组回归模型。
     *   **关键产物**: `REGENIE` 会为**每个参与者**和**每个二分类表型**，计算出一个**个体水平的遗传预测值**。这个预测值本质上就是一个**多基因风险评分 (PRS)**。
     *   最终得到5个独立的PRS文件。
-    * 注意：这里保留了LOCO文件，LOCO=TRUE时，会给出具体的染色体。
+    * 注意1：这里保留了LOCO文件，LOCO=TRUE时，会给出具体的染色体。
+    * 注意2：REGENIE不支持多分类表型，但是支持同时对多个二分类进行分析。
 
 #### 第3步: ==PRS 的正交化== 
 
@@ -48,7 +49,7 @@
 2.  **解决方案**: 使用**主成分分析 (PCA)**。
 3.  **最终数据**: 将这5个新的、正交的PRS主成分 `prs_pc` 作为新的协变量添加到fullDat中，得到最终用于拟合零模型的数据 `data_for_null_model`。
 
-#### 第7步: 拟合 OrdinalSTAAR 零模型
+#### 第7步: 拟合 OrdinalSTAAR Null Model
 
 1.  **定义模型**:
     *   **结局变量 (`outcomeCol`)**: `alcohol_intake_frequency` (原始的、6个等级的有序变量)。
@@ -66,16 +67,13 @@
 
 参考：[SurvSTAAR/R/NullModel.R at main · Cui-yd/SurvSTAAR](https://github.com/Cui-yd/SurvSTAAR/blob/main/R/NullModel.R)
 
-**核心目标**: 该函数旨在拟合一个**有序多分类表型的零模型**，并预先计算出后续进行`OrdinalSTAAR`所必需的所有组件。
+#### Part 1: 拟合有序probit模型 ordinal::clm(...）
 
----
-#### Part 1: 拟合有序零模型 ordinal::clm(...）
-
-#### Part 2: 计算残差和方差组件（潜变量残差法）
+#### Part 2: 计算残差和方差组件（[[0805潜在变量残差法]]）
 
 *   为后续的分数检验准备必需的组件。
 *   **实现**:
-    1.  **计算潜变量残差**:
+    1.  **计算潜在变量残差**:
         *   `eta <- X_mat %*% alpha_coefs`: 计算每个人的线性预测值 `Xβ`。
         *   `lower_b`, `upper_b`: 根据每个人的观测类别，确定其潜在误差 `ε` 被截尾的区间 `[a, b]`。
         *   `residuals <- (dnorm(lower_b) - dnorm(upper_b)) / prob_interval`: 应用**截尾正态分布的条件期望公式** `[φ(a) - φ(b)] / [Φ(b) - Φ(a)]`，计算出每个人的潜变量残差。
@@ -87,7 +85,7 @@
         * `XWX_mat <- X_t_W %*% X_mat`
         * `XWX_inv <- solve(XWX_mat)`
         * `WX_mat <- t(X_t_W)`
-        * 预先计算好分数检验方差公式 `Var(U) = G'WG - G'WX(X'WX)⁻¹X'WG` 中所有与基因型无关的、耗时的部分.
+        * 预先计算好分数检验方差公式 `Var(U) = G'WG - G'WX(X'WX)⁻¹X'WG` 中所有与基因型无关的、耗时的部分。
 
 #### Part 3: 组装
 
