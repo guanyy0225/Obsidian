@@ -8,7 +8,7 @@
         "type": "tabs",
         "children": [
           {
-            "id": "0599b6454a9ae3cd",
+            "id": "17027605609d8e6c",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -22,17 +22,17 @@
             }
           },
           {
-            "id": "17027605609d8e6c",
+            "id": "0de78a322da6a487",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "0913代码学习.md",
+                "file": "0915代码学习.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0913代码学习"
+              "title": "0915代码学习"
             }
           },
           {
@@ -63,7 +63,8 @@
               "title": "0911汇报：STAAR扩展“有序多分类”表型"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -228,12 +229,19 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "0599b6454a9ae3cd",
+  "active": "0de78a322da6a487",
   "lastOpenFiles": [
-    "04_项目/组会/0911汇报：STAAR扩展“有序多分类”表型.md",
-    "0911下午.md",
     "0913、0915进展.md",
+    "0915代码学习.md",
+    "0911下午.md",
+    "0913代码学习.md",
+    "未命名 1.md",
+    "附件/Pasted image 20250915143737.png",
+    "附件/GIGYF1_delate.xlsx",
+    "附件/ADH1C_delate.xlsx",
     "附件/~$OrdinalSTAAR_summary_results_no_annotations_v2.xlsx",
+    "附件/Pasted image 20250915143452.png",
+    "04_项目/组会/0911汇报：STAAR扩展“有序多分类”表型.md",
     "附件/OrdinalSTAAR_summary_results_no_annotations_v2.xlsx",
     "附件/Pasted image 20250915130726.png",
     "附件/Pasted image 20250915130645.png",
@@ -243,10 +251,7 @@
     "附件/Pasted image 20250915100834.png",
     "附件/Pasted image 20250915090440.png",
     "附件/Pasted image 20250915090414.png",
-    "0913代码学习.md",
     "附件/Pasted image 20250913145721.png",
-    "附件/Pasted image 20250913145357.png",
-    "附件/Pasted image 20250913140800.png",
     "07_草稿箱/杂.md",
     "0911组会记录.md",
     "代码结果.md",
@@ -267,14 +272,11 @@
     "0909.md",
     "04_项目/组会/0902SurvSTAAR学习.md",
     "OrdinalSTAAR思维导图.md",
-    "REGENIE.md",
     "SurvSTAAR函数解释",
     "04_项目/azphwas",
     "05_学习/家教/附件",
     "04_项目/组会/附件",
     "05_学习/家教",
-    "05_学习",
-    "06_生活",
     "未命名.canvas"
   ]
 }
