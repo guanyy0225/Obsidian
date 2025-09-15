@@ -63,7 +63,8 @@
               "title": "0911汇报：STAAR扩展“有序多分类”表型"
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -228,15 +229,16 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "0599b6454a9ae3cd",
+  "active": "882654cdcfbd030b",
   "lastOpenFiles": [
+    "0911下午.md",
+    "0913、0915进展.md",
     "附件/~$OrdinalSTAAR_summary_results_no_annotations_v2.xlsx",
     "附件/OrdinalSTAAR_summary_results_no_annotations_v2.xlsx",
     "附件/Pasted image 20250915130726.png",
     "附件/Pasted image 20250915130645.png",
     "附件/Pasted image 20250915130640.png",
     "未命名.md",
-    "0913、0915进展.md",
     "附件/Pasted image 20250915103644.png",
     "04_项目/组会/0911汇报：STAAR扩展“有序多分类”表型.md",
     "附件/Pasted image 20250915100834.png",
@@ -246,7 +248,6 @@
     "附件/Pasted image 20250913145721.png",
     "附件/Pasted image 20250913145357.png",
     "附件/Pasted image 20250913140800.png",
-    "0911下午.md",
     "07_草稿箱/杂.md",
     "0911组会记录.md",
     "代码结果.md",
@@ -275,7 +276,6 @@
     "05_学习/家教",
     "05_学习",
     "06_生活",
-    "04_项目",
     "未命名.canvas"
   ]
 }
