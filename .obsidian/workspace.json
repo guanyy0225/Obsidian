@@ -63,7 +63,8 @@
               "title": "0911汇报：STAAR扩展“有序多分类”表型"
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -228,12 +229,13 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "0599b6454a9ae3cd",
+  "active": "882654cdcfbd030b",
   "lastOpenFiles": [
+    "0913、0915进展.md",
+    "附件/Pasted image 20250915100834.png",
     "附件/Pasted image 20250915090440.png",
     "附件/Pasted image 20250915090414.png",
     "0913代码学习.md",
-    "0913、0915进展.md",
     "附件/Pasted image 20250913145721.png",
     "附件/Pasted image 20250913145357.png",
     "附件/Pasted image 20250913140800.png",
@@ -245,11 +247,9 @@
     "附件/Pasted image 20250913102601.png",
     "07_草稿箱/杂.md",
     "0911组会记录.md",
-    "附件/Pasted image 20250911163002.png",
     "代码结果.md",
     "04_项目/组会/0805潜在变量残差法.md",
     "04_项目/组会/0827潜在变量法实际遇到的问题.md",
-    "04_项目/组会/附件/Pasted image 20250911085835.png",
     "潜在变量残差法.md",
     "04_项目/组会/0828汇报：STAAR扩展“有序多分类”表型---潜在残差的方法介绍.md",
     "04_项目/组会/0826问题汇总.md",
