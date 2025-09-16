@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "0915代码学习.md",
+                "file": "0915、0916代码学习.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0915代码学习"
+              "title": "0915、0916代码学习"
             }
           },
           {
@@ -232,7 +232,7 @@
   "active": "0de78a322da6a487",
   "lastOpenFiles": [
     "0913、0915进展.md",
-    "0915代码学习.md",
+    "0915、0916代码学习.md",
     "0911下午.md",
     "0913代码学习.md",
     "未命名 1.md",
