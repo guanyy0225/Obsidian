@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -243,10 +243,10 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "04481cd28578553d",
+  "active": "6581967f9dfdb62f",
   "lastOpenFiles": [
-    "0917 有序多分类模型进行得分检验.md",
     "0917 有序多分类模型的参考书.md",
+    "0917 有序多分类模型进行得分检验.md",
     "04_项目/组会/0911汇报：STAAR扩展“有序多分类”表型.md",
     "04_项目/组会/0913、0915进展.md",
     "附件/~$ADH1C_delate.xlsx",
