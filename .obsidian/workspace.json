@@ -76,9 +76,23 @@
               "icon": "lucide-file",
               "title": "0918 有序多分类得分检验与非参数检验的关系"
             }
+          },
+          {
+            "id": "066a02d13d3d033f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "POLMM.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "POLMM"
+            }
           }
         ],
-        "currentTab": 3
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -243,11 +257,12 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "6581967f9dfdb62f",
+  "active": "066a02d13d3d033f",
   "lastOpenFiles": [
+    "POLMM.md",
     "0918 有序多分类得分检验与非参数检验的关系.md",
-    "0917 有序多分类模型的参考书.md",
     "0917 有序多分类模型进行得分检验.md",
+    "0917 有序多分类模型的参考书.md",
     "附件/Pasted image 20250915143452.png",
     "附件/Pasted image 20250913140800.png",
     "附件/Pasted image 20250911163002.png",
