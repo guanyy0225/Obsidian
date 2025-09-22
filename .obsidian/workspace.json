@@ -106,7 +106,7 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 6
       }
     ],
     "direction": "vertical"
@@ -271,10 +271,10 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "066a02d13d3d033f",
+  "active": "65ec59ad11e12178",
   "lastOpenFiles": [
-    "广义线性模型的得分检验.md",
     "POLMM.md",
+    "广义线性模型的得分检验.md",
     "0918 有序多分类得分检验与非参数检验的关系.md",
     "附件/理想方法_无数值优化.r",
     "0917 有序多分类模型进行得分检验.md",
