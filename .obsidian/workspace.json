@@ -8,54 +8,12 @@
         "type": "tabs",
         "children": [
           {
-            "id": "17027605609d8e6c",
+            "id": "066a02d13d3d033f",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "04_项目/组会/0805潜在变量残差法.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "0805潜在变量残差法"
-            }
-          },
-          {
-            "id": "f928fb4a9c2f4114",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "0911下午.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "0911下午"
-            }
-          },
-          {
-            "id": "882654cdcfbd030b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "0917 有序多分类模型的参考书.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "0917 有序多分类模型的参考书"
-            }
-          },
-          {
-            "id": "6581967f9dfdb62f",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "0917 有序多分类模型进行得分检验.md",
+                "file": "04_项目/组会/0917 有序多分类模型进行得分检验.md",
                 "mode": "source",
                 "source": false
               },
@@ -64,35 +22,20 @@
             }
           },
           {
-            "id": "066a02d13d3d033f",
+            "id": "be7749384f53b3a2",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "04_项目/组会/0917 有序多分类模型的参考书.md",
+                "file": "04_项目/组会/0918 有序多分类得分检验与非参数检验的关系.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0917 有序多分类模型的参考书"
-            }
-          },
-          {
-            "id": "65ec59ad11e12178",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "广义线性模型的得分检验.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "广义线性模型的得分检验"
+              "title": "0918 有序多分类得分检验与非参数检验的关系"
             }
           }
-        ],
-        "currentTab": 4
+        ]
       }
     ],
     "direction": "vertical"
@@ -259,12 +202,20 @@
   },
   "active": "066a02d13d3d033f",
   "lastOpenFiles": [
-    "POLMM.md",
-    "广义线性模型的得分检验.md",
-    "0918 有序多分类得分检验与非参数检验的关系.md",
-    "附件/理想方法_无数值优化.r",
-    "0917 有序多分类模型进行得分检验.md",
+    "代码结果.md",
     "04_项目/组会/0917 有序多分类模型的参考书.md",
+    "潜在变量残差法.md",
+    "进度.md",
+    "未命名 2.md",
+    "未命名 1.md",
+    "未命名.md",
+    "04_项目/组会/0917 有序多分类模型进行得分检验.md",
+    "未命名.base",
+    "04_项目/组会/0919广义线性模型的得分检验.md",
+    "04_项目/组会/0918 有序多分类得分检验与非参数检验的关系.md",
+    "04_项目/组会/0805潜在变量残差法.md",
+    "04_项目/组会/POLMM.md",
+    "附件/理想方法_无数值优化.r",
     "附件/Pasted image 20250915143452.png",
     "附件/Pasted image 20250913140800.png",
     "附件/Pasted image 20250911163002.png",
@@ -283,28 +234,20 @@
     "04_项目/组会/附件/Pasted image 20250911085543.png",
     "04_项目/组会/附件/Pasted image 20250911085810.png",
     "04_项目/组会/0909.md",
-    "04_项目/组会/0805潜在变量残差法.md",
     "04_项目/组会/0827潜在变量法实际遇到的问题.md",
     "04_项目/组会/0826问题汇总.md",
     "04_项目/组会/0826GENESIS包介绍及使用.md",
-    "未命名 2.md",
     "04_项目/组会/0911下午.md",
     "04_项目/组会/0913代码学习.md",
-    "未命名 1.md",
     "附件/GIGYF1_delate.xlsx",
     "附件/ADH1C_delate.xlsx",
     "附件/~$OrdinalSTAAR_summary_results_no_annotations_v2.xlsx",
     "附件/OrdinalSTAAR_summary_results_no_annotations_v2.xlsx",
-    "未命名.md",
     "07_草稿箱/杂.md",
     "04_项目/组会/0911组会记录.md",
-    "代码结果.md",
-    "潜在变量残差法.md",
-    "04_项目/组会/0828汇报：STAAR扩展“有序多分类”表型---潜在残差的方法介绍.md",
     "附件",
     "SurvSTAAR函数解释",
     "04_项目/azphwas",
-    "05_学习/家教/附件",
     "未命名.canvas"
   ]
 }
