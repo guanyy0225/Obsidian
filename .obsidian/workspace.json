@@ -64,31 +64,17 @@
             }
           },
           {
-            "id": "29d3883bfb906c07",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "0918 有序多分类得分检验与非参数检验的关系.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "0918 有序多分类得分检验与非参数检验的关系"
-            }
-          },
-          {
             "id": "066a02d13d3d033f",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "POLMM.md",
+                "file": "04_项目/组会/0917 有序多分类模型的参考书.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "POLMM"
+              "title": "0917 有序多分类模型的参考书"
             }
           },
           {
@@ -106,7 +92,7 @@
             }
           }
         ],
-        "currentTab": 6
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -271,14 +257,14 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "65ec59ad11e12178",
+  "active": "066a02d13d3d033f",
   "lastOpenFiles": [
     "POLMM.md",
     "广义线性模型的得分检验.md",
     "0918 有序多分类得分检验与非参数检验的关系.md",
     "附件/理想方法_无数值优化.r",
     "0917 有序多分类模型进行得分检验.md",
-    "0917 有序多分类模型的参考书.md",
+    "04_项目/组会/0917 有序多分类模型的参考书.md",
     "附件/Pasted image 20250915143452.png",
     "附件/Pasted image 20250913140800.png",
     "附件/Pasted image 20250911163002.png",
