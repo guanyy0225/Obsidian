@@ -3,7 +3,7 @@
 
 下面我将根据文章内容，详细解释其模型拟合和得分检验的步骤。
 
-### 核心模型：比例优势逻辑混合模型 (Proportional Odds Logistic Mixed Model, POLMM)
+### 核心模型：比例优势逻辑混合模型 (Proportional Odds Logistic Mixed Model, POLMM)=
 
 这是整个方法的基础。该模型专门用于处理有序多分类的表型数据（例如：从不、偶尔、经常；瘦、中等、胖）。
 
