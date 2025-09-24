@@ -83,16 +83,16 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "0924.md",
+                "file": "0924 nullmodel的数学原理.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0924"
+              "title": "0924 nullmodel的数学原理"
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -257,10 +257,10 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "71f2ec23ddf7a416",
+  "active": "3478563847adf55b",
   "lastOpenFiles": [
-    "0924.md",
     "0924 POLMM论文.md",
+    "0924 nullmodel的数学原理.md",
     "0922 代码进展.md",
     "附件/POLMM.pdf",
     "04_项目/组会/0913、0915进展.md",
