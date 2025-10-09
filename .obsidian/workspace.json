@@ -125,16 +125,30 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "0929 信息矩阵的计算.md",
+                "file": "07_草稿箱/杂.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0929 信息矩阵的计算"
+              "title": "杂"
+            }
+          },
+          {
+            "id": "0b0c2bba64acfa21",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "1009组会.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "1009组会"
             }
           }
         ],
-        "currentTab": 8
+        "currentTab": 9
       }
     ],
     "direction": "vertical"
@@ -298,15 +312,17 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "c09d49e41fc4a896",
+  "active": "0b0c2bba64acfa21",
   "lastOpenFiles": [
     "未命名 1.md",
     "0929 信息矩阵的计算.md",
+    "0924 POLMM论文.md",
+    "0924 nullmodel的数学原理.md",
+    "1009组会.md",
+    "07_草稿箱/杂.md",
     "未命名.md",
     "04_项目/组会/0911汇报：STAAR扩展“有序多分类”表型.md",
-    "0924 nullmodel的数学原理.md",
     "附件/simulation_v1.r",
-    "0924 POLMM论文.md",
     "0922 代码进展.md",
     "附件/POLMM.pdf",
     "04_项目/组会/0913、0915进展.md",
@@ -340,8 +356,6 @@
     "04_项目/组会/附件/Pasted image 20250911085810.png",
     "04_项目/组会/0909.md",
     "04_项目/组会/0827潜在变量法实际遇到的问题.md",
-    "04_项目/组会/0826问题汇总.md",
-    "04_项目/组会/0826GENESIS包介绍及使用.md",
     "附件/GIGYF1_delate.xlsx",
     "附件/ADH1C_delate.xlsx",
     "附件/~$OrdinalSTAAR_summary_results_no_annotations_v2.xlsx",
