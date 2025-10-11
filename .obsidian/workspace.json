@@ -27,24 +27,26 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "1009组会.md",
+                "file": "07_草稿箱/杂.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "1009组会"
+              "title": "杂"
             }
           },
           {
-            "id": "e152901fb9cf651f",
+            "id": "5226b5db625e82ad",
             "type": "leaf",
             "state": {
-              "type": "release-notes",
+              "type": "markdown",
               "state": {
-                "currentVersion": "1.9.14"
+                "file": "1011.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-book-up",
-              "title": "版本说明 1.9.14"
+              "icon": "lucide-file",
+              "title": "1011"
             }
           },
           {
@@ -147,7 +149,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 337.5
+    "width": 337.5,
+    "collapsed": true
   },
   "right": {
     "id": "1435d00f0d743758",
@@ -254,23 +257,25 @@
       "obsidian-advanced-slides:Show Slide Preview": false
     }
   },
-  "active": "e152901fb9cf651f",
+  "active": "5226b5db625e82ad",
   "lastOpenFiles": [
-    "0929 信息矩阵的计算.md",
-    "未命名 1.md",
+    "07_草稿箱/杂.md",
+    "1011.md",
     "04_项目/组会/0913、0915进展.md",
     "0924 POLMM论文.md",
+    "1009组会.md",
+    "04_项目/组会/0919广义线性模型的得分检验.md",
+    "04_项目/组会/POLMM.md",
+    "04_项目/组会/0915、0916代码学习.md",
+    "0929 信息矩阵的计算.md",
+    "未命名 1.md",
     "0922 代码进展.md",
     "0922 POLMM的得分检验.md",
     "04_项目/组会/0911汇报：STAAR扩展“有序多分类”表型.md",
     "未命名.md",
-    "07_草稿箱/杂.md",
-    "04_项目/组会/POLMM.md",
-    "1009组会.md",
     "0924 nullmodel的数学原理.md",
     "附件/simulation_v1.r",
     "附件/POLMM.pdf",
-    "04_项目/组会/0915、0916代码学习.md",
     "附件/理想方法_无数值优化 1.r",
     "04_项目/组会/0918 有序多分类得分检验与非参数检验的关系.md",
     "04_项目/组会/0917 有序多分类模型进行得分检验.md",
@@ -279,7 +284,6 @@
     "潜在变量残差法.md",
     "进度.md",
     "未命名.base",
-    "04_项目/组会/0919广义线性模型的得分检验.md",
     "04_项目/组会/0805潜在变量残差法.md",
     "附件/理想方法_无数值优化.r",
     "附件/Pasted image 20250915143452.png",
@@ -297,7 +301,6 @@
     "04_项目/组会/附件/Pasted image 20250911085543.png",
     "04_项目/组会/附件/Pasted image 20250911085810.png",
     "04_项目/组会/0909.md",
-    "04_项目/组会/0827潜在变量法实际遇到的问题.md",
     "附件/GIGYF1_delate.xlsx",
     "附件/ADH1C_delate.xlsx",
     "附件/~$OrdinalSTAAR_summary_results_no_annotations_v2.xlsx",
